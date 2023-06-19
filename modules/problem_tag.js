@@ -62,10 +62,10 @@ app.post('/problems/tag/:id/edit', async (req, res) => {
 
 app.get('/problem/:id/tag/update', async (req, res) => {
   try {
-    if (!res.locals.user || (!res.locals.user.is_admin && !syzoj.config.allow_tag_edit)) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!res.locals.user || (!res.locals.user.hasPrivilege('manage_problem_tag') && !syzoj.config.allow_tag_edit)) throw new ErrorMessage('您没有权限进行此操作。');
     let problem = await Problem.findById(parseInt(req.params.id))
     if(!problem) throw new ErrorMessage('找不到题目。');
-    if(!res.locals.user.is_admin) {
+    if(!res.locals.user.hasPrivilege('manage_problem_tag')) {
       let state = await problem.getJudgeState(res.locals.user, true, true)
       if (!state) throw new ErrorMessage('您没有权限进行此操作。');
     }
@@ -84,10 +84,10 @@ app.get('/problem/:id/tag/update', async (req, res) => {
 
 app.post('/problem/:id/tag/update', async (req, res) => {
   try {
-    if (!res.locals.user || (!res.locals.user.is_admin && !syzoj.config.allow_tag_edit)) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!res.locals.user || (!res.locals.user.hasPrivilege('manage_problem_tag') && !syzoj.config.allow_tag_edit)) throw new ErrorMessage('您没有权限进行此操作。');
     let problem = await Problem.findById(parseInt(req.params.id))
     if(!problem) throw new ErrorMessage('找不到题目。');
-    if(!res.locals.user.is_admin) {
+    if(!res.locals.user.hasPrivilege('manage_problem_tag')) {
       let state = await problem.getJudgeState(res.locals.user, true, true)
       if (!state) throw new ErrorMessage('您没有权限进行此操作。');
     }
