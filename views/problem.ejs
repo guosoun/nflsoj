@@ -427,6 +427,23 @@ if (contest) {
         </div>
     </div>
     <% } %>
+    <% if (res.locals.user.is_admin && key) { %>
+      <div class='mini ui primary button' style='margin-left: 10px' onclick="copyLink()" id="copy_link_button">  复制外部可访问链接 </div>
+      <script>
+        function copyLink() {
+          let $button = $('#copy_link_button')
+          $button.attr('disabled', 'true').removeClass('primary').addClass('positive')
+          const org = $button.text()
+          setTimeout(() => {
+            $button.removeAttr("disabled").removeClass('positive').addClass('primary')
+            $button.text(org)
+          }, 1000)
+          $button.text('复制成功');
+          let str = window.location.href + "?key=" + '<%= key %>'
+          copyToClip(str);
+        }
+      </script>
+    <% } %>
 </div>
 
 <% if (problem.type !== 'submit-answer') { %>

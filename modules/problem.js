@@ -20,6 +20,10 @@ const {QueryBuilder} = require("typeorm");
 let Judger = syzoj.lib('judger');
 let CodeFormatter = syzoj.lib('code_formatter');
 
+function get_key(problem_id) {
+  return syzoj.utils.md5(problem_id + "problem_xxx")
+}
+
 app.get('/problems', async (req, res) => {
   try {
     if(!res.locals.user){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
@@ -225,14 +229,13 @@ app.get('/problems/tag/:tagIDs', async (req, res) => {
 app.get('/problem/:id', async (req, res) => {
   try {
     if(!res.locals.user){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
-    if(!res.locals.user || !await res.locals.user.allowedAddProblem()) throw new ErrorMessage('您没有权限进行此操作。');
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
     if (!problem) throw new ErrorMessage('无此题目。');
 
-    if (!await problem.isAllowedUseBy(res.locals.user)) {
-      throw new ErrorMessage('您没有权限进行此操作。');
-    }
+    let key = get_key(id);
+    console.log(key, req.query.key);
+    if (!await res.locals.user.allowedAddProblem() && !await problem.isAllowedUseBy(res.locals.user) && req.query.key != key) throw new ErrorMessage('您没有权限进行此操作。');
 
     problem.allowedEdit = await problem.isAllowedEditBy(res.locals.user);
     problem.allowedManage = await problem.isAllowedManageBy(res.locals.user);
@@ -259,7 +262,8 @@ app.get('/problem/:id', async (req, res) => {
       allow_edit_tag,
       lastLanguage: res.locals.user ? await res.locals.user.getLastSubmitLanguage() : null,
       testcases: testcases,
-      discussionCount: discussionCount
+      discussionCount: discussionCount,
+      key
     });
   } catch (e) {
     syzoj.log(e);
