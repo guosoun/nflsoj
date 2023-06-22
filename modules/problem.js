@@ -240,7 +240,8 @@ app.get('/problem/:id', async (req, res) => {
     console.log(key, req.query.key);
     if (!(
       req.query.key == key || (
-        (await res.locals.user.allowedAddProblem() || await problem.isAllowedUseBy(res.locals.user)) &&
+        await res.locals.user.allowedAddProblem() &&
+        await problem.isAllowedUseBy(res.locals.user) &&
         (problem.is_public || problem.allowedEdit)
       )
     )) throw new ErrorMessage('您没有权限进行此操作。');
