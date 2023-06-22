@@ -238,13 +238,12 @@ app.get('/problem/:id', async (req, res) => {
 
     let key = get_key(id);
     console.log(key, req.query.key);
-    if (
-      !await res.locals.user.allowedAddProblem() &&
-      !await problem.isAllowedUseBy(res.locals.user) &&
-      !problem.is_public &&
-      !problem.allowedEdit &&
-      req.query.key != key
-    ) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!(
+      req.query.key == key || (
+        (await res.locals.user.allowedAddProblem() || await problem.isAllowedUseBy(res.locals.user)) &&
+        (problem.is_public || problem.allowedEdit)
+      )
+    )) throw new ErrorMessage('您没有权限进行此操作。');
 
     await syzoj.utils.markdown(problem, ['description', 'input_format', 'output_format', 'example', 'limit_and_hint']);
 
