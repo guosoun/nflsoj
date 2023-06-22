@@ -95,6 +95,7 @@ async function getOtherOJACproblems(luogu_uids, cf_usernames, at_usernames) {
 
 app.post('/user/:id/update_problems', async (req, res) => {
   try {
+    if (!syzoj.config.enable_spider) throw new ErrorMessage('该功能未启用。');
     let id = parseInt(req.params.id);
     let user = await User.findById(id);
     if (!user) throw new ErrorMessage('无此用户。');
@@ -106,7 +107,8 @@ app.post('/user/:id/update_problems', async (req, res) => {
     res.send({success: true});
   } catch (e) {
     syzoj.log(e);
-    res.send({success: false, err: e.toString()});
+    let err = e instanceof ErrorMessage ? e.message : e.toString();
+    res.send({success: false, err});
   }
 });
 

@@ -45,7 +45,7 @@
         </div>
       </div>
 
-      <% if (res.locals.user && (res.locals.user.is_admin || res.locals.user.id == show_user.id)) { %>
+      <% if (syzoj.config.enable_spider && res.locals.user && (res.locals.user.is_admin || res.locals.user.id == show_user.id)) { %>
         <div class="ui card" style="width: 100%; " id="other_OJ_AC_problems">
           <div class="ui grid">
             <div class="row">

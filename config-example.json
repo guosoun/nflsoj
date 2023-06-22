@@ -130,5 +130,8 @@
   "username_regex": "^[a-zA-Z0-9\\-\\_]+$",
   "site_for_download": "",
   "renderer_cache_size": "30000",
-  "article_default_public": false
+  "article_default_public": false,
+  "allow_code_copy": true,
+  "allow_tag_edit": true,
+  "enable_spider": true
 }
