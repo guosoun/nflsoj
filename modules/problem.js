@@ -233,19 +233,20 @@ app.get('/problem/:id', async (req, res) => {
     let problem = await Problem.findById(id);
     if (!problem) throw new ErrorMessage('无此题目。');
 
-    let key = get_key(id);
-    console.log(key, req.query.key);
-    if (!await res.locals.user.allowedAddProblem() && !await problem.isAllowedUseBy(res.locals.user) && req.query.key != key) throw new ErrorMessage('您没有权限进行此操作。');
-
     problem.allowedEdit = await problem.isAllowedEditBy(res.locals.user);
     problem.allowedManage = await problem.isAllowedManageBy(res.locals.user);
 
-    
-    if (problem.is_public || problem.allowedEdit) {
-      await syzoj.utils.markdown(problem, ['description', 'input_format', 'output_format', 'example', 'limit_and_hint']);
-    } else {
-      throw new ErrorMessage('您没有权限进行此操作。');
-    }
+    let key = get_key(id);
+    console.log(key, req.query.key);
+    if (
+      !await res.locals.user.allowedAddProblem() &&
+      !await problem.isAllowedUseBy(res.locals.user) &&
+      !problem.is_public &&
+      !problem.allowedEdit &&
+      req.query.key != key
+    ) throw new ErrorMessage('您没有权限进行此操作。');
+
+    await syzoj.utils.markdown(problem, ['description', 'input_format', 'output_format', 'example', 'limit_and_hint']);
 
     let state = await problem.getJudgeState(res.locals.user, true);
     let allow_edit_tag = res.locals.user.is_admin || (syzoj.config.allow_tag_edit && state && state.status === 'Accepted')
