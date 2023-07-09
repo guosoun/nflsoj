@@ -78,6 +78,12 @@ export default class User extends Model {
   @TypeORM.Column({ nullable: true, type: "text" })
   group_id: string;
 
+  @TypeORM.Column({ nullable: true, type: "integer" })
+  last_edit_user_id: number;
+
+  @TypeORM.Column({ nullable: true, type: "datetime" })
+  last_edit_time: Date;
+
   @TypeORM.Column({ nullable: true, type: "text" })
   luogu_account: string;
 

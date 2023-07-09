@@ -15,7 +15,7 @@
           <input type="text" id="username" name="username" value="<%= edited_user.username %>"<% if (!user.allowedManage) { %> readonly <% } %> />
       </div>
 
-      <% if(is_admin){ %>
+      <% if(user.allowedManage){ %>
       <div class="field">
           <label for="nickname">姓名</label>
           <input type="text" id="nickname" name="nickname" value="<%= edited_user.nickname %>"<% if (!user.allowedManage) { %> readonly <% } %> />
@@ -57,24 +57,37 @@
           <option value="1" <%= edited_user.sex == 1 ? 'selected': '' %>>男</option>
           <option value="-1" <%= edited_user.sex == -1 ? 'selected': '' %>>女</option>
         </select>
-        </div>
+      </div>
+      <% if (user.allowedManage) { %>
         <div class="field">
-            <label for="email">Email</label>
-            <input class="font-content" type="email" id="email" name="email" value="<%= edited_user.email %>"<% if (!user.allowedManage) { %> readonly<% } %>>
+        <label>上次更新</label>
+        <div class="two fields">
+          <div class="field">
+            <input type="text" value="用户：<%= edited_user.last_edit_user ? edited_user.last_edit_user.username : '无记录' %>" readonly/>
+          </div>
+          <div class="field">
+            <input type="text" value="时间：<%= edited_user.last_edit_time ? syzoj.utils.formatDate(edited_user.last_edit_time / 1000) : '无记录' %>" readonly/>
+          </div>
         </div>
-        <%if(is_admin) {%>
-          <div class="inline field">
-            <label class="ui header">公开 Email</label>
-            <div class="ui toggle checkbox">
-              <input id="public_email" name="public_email" type="checkbox" <% if (edited_user.public_email) { %> checked<% } %>>
-              <label>　</label>
-            </div>
-            </div>
-        <%}%>
+      </div>
+      <% } %>
+      <div class="field">
+          <label for="email">Email</label>
+          <input class="font-content" type="email" id="email" name="email" value="<%= edited_user.email %>"<% if (!user.allowedManage) { %> readonly <% } %>>
+      </div>
+      <% if (user.allowedManage) { %>
+        <div class="inline field">
+          <label class="ui header">公开 Email</label>
+          <div class="ui toggle checkbox">
+            <input id="public_email" name="public_email" type="checkbox" <% if (edited_user.public_email) { %> checked <% } %>>
+            <label>　</label>
+          </div>
+          </div>
+      <% } %>
       <div class="inline field">
         <label class="ui header">默认显示格式化后的代码（如果可用）</label>
         <div class="ui toggle checkbox">
-          <input id="prefer_formatted_code" name="prefer_formatted_code" type="checkbox" <% if (edited_user.prefer_formatted_code) { %> checked<% } %>>
+          <input id="prefer_formatted_code" name="prefer_formatted_code" type="checkbox" <% if (edited_user.prefer_formatted_code) { %> checked <% } %>>
           <label>　</label>
         </div>
       </div>
