@@ -11,7 +11,6 @@ async function getjson(url) {
   let data = await new Promise((resolve, reject) => {
     request({
       url,
-      proxy: 'http://192.168.188.88:7890',
       headers: {
         'Accept-Encoding': 'gzip',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.41'
