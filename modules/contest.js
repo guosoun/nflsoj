@@ -241,7 +241,8 @@ app.get('/cp/user/:id', async (req, res) => {
       show_user: user,
       paginate,
       key,
-      count
+      count,
+      hide_rank: req.query.hide
     })
   } catch (e) {
     res.render('error', {

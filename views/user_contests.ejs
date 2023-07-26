@@ -18,7 +18,7 @@
     <table class="ui center aligned table celled">
         <thead>
         <tr>
-            <th class="one wide">名次</th>
+            <% if (!hide_rank) { %><th class="one wide">名次</th><% } %>
             <!-- <th class="one wide">总人数</th> -->
             <th class="one wide"><div>得分</div> <div>(赛中/赛后/总分) </div></th>
             <th class="one wide"><div>过题</div> <div>(赛中/赛后/总题数)</th>
@@ -30,7 +30,7 @@
         <tbody>
         <% data.forEach(item => { %>
             <tr>
-                <td><%= item.rank%> </td>
+                <% if (!hide_rank) { %><td><%= item.rank%> </td><% } %>
                 <!-- <td><%= item.player_num%> </td> -->
                 <td>  <%= Math.round(item.score) %> / <%=  Math.round(item.score_after_contest) %> / <%= Math.round(item.total_score)%> </td>
                 <td> <%= item.solved%> / <%= item.solved_count%> / <%= item.problem_count%> </td>
