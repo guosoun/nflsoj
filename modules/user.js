@@ -19,7 +19,7 @@ app.get('/ranklist', async (req, res) => {
 
     const sort = req.query.sort || syzoj.config.sorting.ranklist.field;
     const order = req.query.order || syzoj.config.sorting.ranklist.order;
-    if (!['ac_num', 'rating', 'id', 'username','end_time', 'last_login_time','group_id'].includes(sort) || !['asc', 'desc'].includes(order)) {
+    if (!['ac_num', 'rating', 'id', 'username', 'nickname', 'end_time', 'last_login_time','group_id', 'last_edit_user_id', 'last_edit_time'].includes(sort) || !['asc', 'desc'].includes(order)) {
       throw new ErrorMessage('错误的排序参数。');
     }
 
@@ -34,9 +34,14 @@ app.get('/ranklist', async (req, res) => {
       query.where('is_show = 1');
     }
 
+    if (!res.locals.user.is_admin) {
+      query.andWhere('last_edit_user_id = :user_id', { user_id: res.locals.user.id });
+    }
+
     let paginate = syzoj.utils.paginate(await User.countForPagination(query), req.query.page, syzoj.config.page.ranklist);
     let ranklist = await User.queryPage(paginate, query, { [sort]: order.toUpperCase() });
     await ranklist.forEachAsync(async x => x.renderInformation());
+    await ranklist.forEachAsync(async x => x.last_edit_user = await User.findById(x.last_edit_user_id));
 
     // await ranklist.forEachAsync(async x => x.last_login_time = await LoginLog.getLastLoginTime(x.id));
 

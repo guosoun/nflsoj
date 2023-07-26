@@ -13,13 +13,15 @@
             <tr>
                 <th style="width: 60px; ">#</th>
                 <th style="width: 150px; "><%- createSortableTitle('username', '用户名', true) %></th>
-                <th style="width: 150px; "><%- createSortableTitle('nick', '姓名', true) %></th>
+                <th style="width: 150px; "><%- createSortableTitle('nickname', '姓名', true) %></th>
                 <!-- <th>个性签名</th> -->
                 <th style="width: 100px; "><%- createSortableTitle('ac_num', '通过数量', false) %></th>
                 <th style="width: 100px; "><%- createSortableTitle('rating', '积分', false) %></th>
                 <th style="width: 100px; "><%- createSortableTitle('last_login_time', '登录时间', false) %></th>
                 <th style="width: 100px; "><%- createSortableTitle('end_time', '结束时间', false) %></th>
-                <th style="width: 100px; "><%- createSortableTitle('group_id', '分组', false) %></th>
+                <th style="width: 100px; "><%- createSortableTitle('group_id', '分组', true) %></th>
+                <th style="width: 100px; "><%- createSortableTitle('last_edit_user_id', '审核人员', true) %></th>
+                <th style="width: 100px; "><%- createSortableTitle('last_edit_time', '审核时间', false) %></th>
                 <th style="width: 100px; ">编辑用户</th>
             </tr>
             </thead>
@@ -65,6 +67,8 @@
                     <td><%= syzoj.utils.formatDate(user.last_login_time / 1000) %></td>
                     <td><%= syzoj.utils.formatDate(user.end_time) %></td>
                     <td><%= user.group_id %></td>
+                    <td><%= user.last_edit_user.username %></td>
+                    <td><%= syzoj.utils.formatDate(user.last_edit_time / 1000) %></td>
                     <td><a href="<%= syzoj.utils.makeUrl(['user', user.id, 'edit']) %>">编辑</a></td>
                 </tr>
             <% } %>

@@ -78,6 +78,7 @@ export default class User extends Model {
   @TypeORM.Column({ nullable: true, type: "text" })
   group_id: string;
 
+  @TypeORM.Index()
   @TypeORM.Column({ nullable: true, type: "integer" })
   last_edit_user_id: number;
 
