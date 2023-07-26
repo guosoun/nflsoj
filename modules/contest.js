@@ -111,7 +111,8 @@ app.get('/contests', async (req, res) => {
 
     await contests.forEachAsync(async x => {
       x.subtitle = await syzoj.utils.markdown(x.subtitle);
-      if(x.hide_title) x.title = hide_title_replace
+      if (x.hide_title) x.title = hide_title_replace;
+      x.holder = await User.findById(x.holder_id);
     });
 
     res.render('contests', {

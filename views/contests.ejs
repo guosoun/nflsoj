@@ -27,6 +27,7 @@
 
         <% if (is_admin) { %>
             <th>group_id</th>
+            <th>创建者</th>
         <% } %>
 
         </tr>
@@ -52,7 +53,8 @@
           <td class="font-content"><%- contest.subtitle %></td>
 
         <% if (is_admin) { %>
-            <td><%- contest.group_id %></td>
+            <td><%= contest.group_id %></td>
+            <td><% if (contest.holder) { %><%= contest.holder.username %><% } else { %><i>无记录</i><% } %></td>
         <% } %>
 
         </tr>
