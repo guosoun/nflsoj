@@ -172,8 +172,8 @@ app.get('/cp/user/:id', async (req, res) => {
     for(let contest of contests) {
       let problem_ids = await contest.getProblems()
       let c = {
-        rank: '---',
-        player_num: '---',
+        rank: '--',
+        player_num: '--',
         score: 0, // 比赛得分
         total_score: 0, // 总分
         score_after_contest: 0, // 赛后得分

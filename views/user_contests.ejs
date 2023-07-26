@@ -30,7 +30,7 @@
         <tbody>
         <% data.forEach(item => { %>
             <tr>
-                <td><%= item.rank == '---' || !norank ? item.rank : '*' %> </td>
+                <td><%= item.rank == '--' || !norank ? item.rank : '**' %> </td>
                 <!-- <td><%= item.player_num%> </td> -->
                 <td>  <%= Math.round(item.score) %> / <%=  Math.round(item.score_after_contest) %> / <%= Math.round(item.total_score)%> </td>
                 <td> <%= item.solved%> / <%= item.solved_count%> / <%= item.problem_count%> </td>
