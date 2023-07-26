@@ -67,8 +67,8 @@
                     <td><%= syzoj.utils.formatDate(user.last_login_time / 1000) %></td>
                     <td><%= syzoj.utils.formatDate(user.end_time) %></td>
                     <td><%= user.group_id %></td>
-                    <td><%= user.last_edit_user ? user.last_edit_user.username : '无记录' %></td>
-                    <td><%= syzoj.utils.formatDate(user.last_edit_time / 1000) %></td>
+                    <td><% if (user.last_edit_user) { %><%= user.last_edit_user.username %><% } else { %><i>无记录<i><% } %></td>
+                    <td><% if (user.last_edit_user) { %><%= syzoj.utils.formatDate(user.last_edit_time / 1000) %><% } else { %><i>无记录<i><% } %></td>
                     <td><a href="<%= syzoj.utils.makeUrl(['user', user.id, 'edit']) %>">编辑</a></td>
                 </tr>
             <% } %>
