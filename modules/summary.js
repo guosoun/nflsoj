@@ -27,7 +27,7 @@ app.get('/summary', async (req, res) => {
         }
 
         const local_user = res.locals.user
-        if (!local_user || (!local_user.is_admin && (!user || local_user.id !== user.id ))) throw new ErrorMessage('您没有权限进行此操作。');
+        if (!local_user || (!await local_user.hasPrivilege(syzoj.PrivilegeType.ManageUser) && (!user || local_user.id !== user.id ))) throw new ErrorMessage('您没有权限进行此操作。');
 
         // let query = ContestPlayer.createQueryBuilder()
         let users = []
@@ -126,7 +126,7 @@ app.get('/summary', async (req, res) => {
             contest: cc,
             summaries,
             paginate,
-            is_admin: local_user.is_admin,
+            allowedManage: await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
         })
     } catch (e) {
         res.render('error', {

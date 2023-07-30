@@ -32,7 +32,7 @@ async function contest_permitted(contest,user){
 }
 
 async function checkgp(contest,user){
-    if (user.is_admin || contest.admins.includes(user.id.toString())) return true;
+    if (await contest.isSupervisior(user)) return true;
     // return true
     if (!contest.is_public) throw new ErrorMessage('比赛未公开');
 
@@ -92,7 +92,7 @@ app.get('/contests', async (req, res) => {
       query.where('title LIKE :title', { title: `%${keyword}%` });
     }
     
-    if (!res.locals.user.is_admin) {
+    if (!await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) {
         let mycont = await res.locals.user.getconts();
         if ( mycont.length === 0 ){
           query.andWhere(`group_id like '%chk%'`);
@@ -116,7 +116,7 @@ app.get('/contests', async (req, res) => {
     });
 
     res.render('contests', {
-      is_admin: res.locals.user.is_admin,
+      allowedManage: await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
       contests: contests,
       paginate: paginate
     })
@@ -138,7 +138,7 @@ app.get('/cp/user/:id', async (req, res) => {
     if(key) {
       let key2 = get_key(user.username)
       if(key !== key2) throw new ErrorMessage('key 不正确。');
-    } else  if(!local_user || (!local_user.is_admin && local_user.id !== user.id)) {
+    } else  if(!local_user || (!await local_user.hasPrivilege(syzoj.PrivilegeType.ManageUser) && local_user.id !== user.id)) {
       throw new ErrorMessage('您没有权限进行此操作。');
     } else {
       key = get_key(user.username)
@@ -273,14 +273,14 @@ app.get('/contest/:id/edit', async (req, res) => {
     let contest = await Contest.findById(contest_id);
     if (!contest) {
       // if contest does not exist, only system administrators can create one
-      if (!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!res.locals.user || !await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) throw new ErrorMessage('您没有权限进行此操作。');
 
       contest = await Contest.create();
       contest.id = 0;
       contest.is_public = true;
     } else {
       // if contest exists, both system administrators and contest administrators can edit it.
-      if (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString()))) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!await contest.isSupervisior(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
 
       await contest.loadRelationships();
     }
@@ -310,7 +310,7 @@ app.post('/contest/:id/edit', async (req, res) => {
     let ranklist = null;
     if (!contest) {
       // if contest does not exist, only system administrators can create one
-      if (!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!res.locals.user || !await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) throw new ErrorMessage('您没有权限进行此操作。');
 
       contest = await Contest.create();
 
@@ -323,7 +323,7 @@ app.post('/contest/:id/edit', async (req, res) => {
       contest.type = req.body.type;
     } else {
       // if contest exists, both system administrators and contest administrators can edit it.
-      if (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString()))) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!await contest.isSupervisior(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
       
       await contest.loadRelationships();
       ranklist = contest.ranklist;
@@ -400,14 +400,10 @@ app.get('/contest/:id', async (req, res) => {
     }
 
     // if contest is non-public, both system administrators and contest administrators can see it.
-    if (!contest.is_public && (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString())))) throw new ErrorMessage('比赛未公开，请耐心等待 (´∀ `)');
+    if (!contest.is_public && !await contest.isSupervisior(res.locals.user)) throw new ErrorMessage('比赛未公开，请耐心等待 (´∀ `)');
 
     contest.running = contest.isRunning();
     contest.ended = contest.isEnded();
-
-
-
-    // if ((!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString()))) && (!contest.isRunning () && !contest.isEnded ())) throw new ErrorMessage('比赛未开始，请耐心等待 (´∀ `)');
 
     contest.subtitle = await syzoj.utils.markdown(contest.subtitle);
     contest.information = await syzoj.utils.markdown(contest.information);
@@ -556,12 +552,11 @@ app.get('/contest/:id/repeat', async (req, res) => {
 
     let contest_id = parseInt(req.params.id);
     let contest = await Contest.findById(contest_id);
-    const curUser = res.locals.user;
 
     if (!contest) throw new ErrorMessage('无此比赛。');
     if (!contest.isEnded ()) throw new ErrorMessage('比赛未结束，请耐心等待 (´∀ `)');
     // if contest is non-public, both system administrators and contest administrators can see it.
-    if (!contest.is_public && (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString())))) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!contest.is_public && !await contest.isSupervisior(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
 
       // if (await checkgp(contest, res.locals.user)) {
       //   ;
@@ -609,7 +604,7 @@ app.get('/contest/:id/repeat', async (req, res) => {
     res.render('contest_repeat', {
       hide_problem_title: problems.length >= 6,
       main_style: problems.length >= 6 ? 'width: auto!important;' : undefined,
-      local_is_admin: res.locals.user.is_admin,
+      local_is_admin: await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
       contest: contest,
       repeatlist: repeatlist,
       problems: problems,
@@ -636,16 +631,14 @@ app.get('/contest/:id/repeat/:prefix', async (req, res) => {
     if (!contest) throw new ErrorMessage('无此比赛。');
     if (!contest.isEnded ()) throw new ErrorMessage('比赛未结束，请耐心等待 (´∀ `)');
 
-    const curUser = res.locals.user;
-    let local_is_admin = curUser && curUser.is_admin
     let pkey = get_key(req.params.prefix)
 
     if(pkey !== key) {
       // if contest is non-public, both system administrators and contest administrators can see it.
 
-      if(!curUser) throw new ErrorMessage('您没有权限进行此操作。');
+      if(!res.locals.user) throw new ErrorMessage('您没有权限进行此操作。');
 
-      if (!contest.is_public && (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString())))) throw new ErrorMessage('您没有权限进行此操作。');
+      if (!contest.is_public && !await contest.isSupervisior(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
 
 
         // if (await checkgp(contest, res.locals.user)) {
@@ -698,7 +691,7 @@ app.get('/contest/:id/repeat/:prefix', async (req, res) => {
     res.render('contest_repeat', {
       hide_problem_title: problems.length >= 6,
       main_style: problems.length >= 6 ? 'width: auto!important;' : undefined,
-      local_is_admin,
+      local_is_admin: await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
       contest: contest,
       repeatlist: repeatlist,
       problems: problems,
@@ -725,7 +718,7 @@ app.get('/contest/:id/ranklist', async (req, res) => {
     // if contest is non-public, both system administrators and contest administrators can see it.
 
 
-    if (!contest.is_public && (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString())))) throw new ErrorMessage('比赛未公开，请耐心等待 (´∀ `)');
+    if (!contest.is_public && !await contest.isSupervisior(res.locals.user)) throw new ErrorMessage('比赛未公开，请耐心等待 (´∀ `)');
 
     if ([contest.allowedSeeingResult() && contest.allowedSeeingOthers(),
     contest.isEnded(),
@@ -790,7 +783,7 @@ app.get('/contest/:id/ranklist', async (req, res) => {
     res.render('contest_ranklist', {
       hide_problem_title: problems.length >= 6,
       main_style: problems.length >= 6 ? 'width: auto!important;' : undefined,
-      local_is_admin: res.locals.user.is_admin,
+      local_is_admin: await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
       contest: contest,
       ranklist: ranklist,
       problems: problems,
@@ -822,13 +815,12 @@ app.get('/contest/:id/ranklist/:prefix', async (req, res) => {
 
     const curUser = res.locals.user;
     let pkey = get_key(req.params.prefix)
-    let local_is_admin = curUser && curUser.is_admin
     //权限认证:
     if(pkey !== key) {
 
       if(!curUser) throw new ErrorMessage('您没有权限进行此操作。');
       // if contest is non-public, both system administrators and contest administrators can see it.
-      if (!contest.is_public && (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString())))) throw new ErrorMessage('比赛未公开，请耐心等待 (´∀ `)');
+      if (!contest.is_public && !await contest.isSupervisior(res.locals.user)) throw new ErrorMessage('比赛未公开，请耐心等待 (´∀ `)');
 
       if ([contest.allowedSeeingResult() && contest.allowedSeeingOthers(),
         contest.isEnded(),
@@ -842,7 +834,7 @@ app.get('/contest/:id/ranklist/:prefix', async (req, res) => {
       // }
 
       key = pkey
-    } else if(contest.isRunning() && !local_is_admin) throw new ErrorMessage('比赛未结束，请耐心等待 (´∀ `)');
+    } else if(contest.isRunning() && !await contest.isSupervisior(res.locals.user)) throw new ErrorMessage('比赛未结束，请耐心等待 (´∀ `)');
 
 
     await contest.loadRelationships();
@@ -907,7 +899,7 @@ app.get('/contest/:id/ranklist/:prefix', async (req, res) => {
     res.render('contest_ranklist', {
       hide_problem_title: problems.length >= 6,
       main_style: problems.length >= 6 ? 'width: auto!important;' : undefined,
-      local_is_admin,
+      local_is_admin: await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
       contest: contest,
       ranklist: ranklist,
       problems: problems,
@@ -944,7 +936,7 @@ app.get('/contest/:id/submissions', async (req, res) => {
     let contest_id = parseInt(req.params.id);
     let contest = await Contest.findById(contest_id);
     // if contest is non-public, both system administrators and contest administrators can see it.
-    if (!contest.is_public && (!res.locals.user || (!res.locals.user.is_admin && !contest.admins.includes(res.locals.user.id.toString())))) throw new ErrorMessage('比赛未公开，请耐心等待 (´∀ `)');
+    if (!contest.is_public && !await contest.isSupervisior(res.locals.user)) throw new ErrorMessage('比赛未公开，请耐心等待 (´∀ `)');
 
     if (contest.isEnded()) {
       res.redirect(syzoj.utils.makeUrl(['submissions'], { contest: contest_id }));
@@ -1049,7 +1041,7 @@ app.get('/contest/:id/submissions', async (req, res) => {
 
     const pushType = displayConfig.showResult ? 'rough' : 'compile';
     res.render(page, {
-      local_is_admin: res.locals.user.is_admin,
+      local_is_admin: await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
       contest: contest,
       items: judge_state.map(x => ({
         info: getSubmissionInfo(x, displayConfig),
@@ -1093,7 +1085,7 @@ app.get('/contest/submission/:id', async (req, res) => {
       return res.redirect(syzoj.utils.makeUrl(['submission', id]));
     }
 
-    if(!res.locals.user.is_admin && !(res.locals.user.id === judge.user_id)) {
+    if(!await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser) && !(res.locals.user.id === judge.user_id)) {
       let pf = await ProblemForbid.findOne({problem_id: judge.problem_id})
       if(pf && pf.forbid_submission_end_time > syzoj.utils.getCurrentDate())  throw new ErrorMessage('禁止查看代码。');
     }
@@ -1116,9 +1108,9 @@ app.get('/contest/submission/:id', async (req, res) => {
 
     let page = req.query.no_jump ?  'submission_modal' : 'submission'
     res.render(page, {
-      local_is_admin: res.locals.user.is_admin,
-      allow_code_copy: syzoj.config.allow_code_copy || res.locals.user.is_admin || res.locals.user.id === judge.user_id,
-      allow_tag_edit: res.locals.user.is_admin || (contest.ended && syzoj.config.allow_tag_edit && judge.user_id === res.locals.user.id && judge.status === 'Accepted'),
+      local_is_admin: await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
+      allow_code_copy: syzoj.config.allow_code_copy || await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser) || res.locals.user.id === judge.user_id,
+      allow_tag_edit: await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser) || (contest.ended && syzoj.config.allow_tag_edit && judge.user_id === res.locals.user.id && judge.status === 'Accepted'),
       info: getSubmissionInfo(judge, displayConfig),
       roughResult: getRoughResult(judge, displayConfig),
       vj_info: judge.vj_info,
@@ -1227,10 +1219,7 @@ app.post('/contest/:id/:pid/rejudge', async (req, res) => {
 
     const user = res.locals.user;
 
-    if (user.is_admin || contest.admins.includes(user.id.toString())) ;
-    else {
-      throw new ErrorMessage("您没有权限执行此操作。");
-    }
+    if (!await contest.isSupervisior(res.locals.user)) throw new ErrorMessage("您没有权限执行此操作。");
 
     let problems_id = await contest.getProblems();
 
@@ -1310,7 +1299,7 @@ app.get('/contest/:id/ball', async (req, res) => {
     let id = parseInt(req.params.id);
     let contest = await Contest.findById(id);
     if (!contest) throw new ErrorMessage('无此比赛。');
-    if (!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) throw new ErrorMessage('您没有权限进行此操作。');
 
     let query = JudgeState.createQueryBuilder();
     query.where("type_info = :type_info", { type_info: id })
@@ -1379,7 +1368,7 @@ app.post('/contest/:id/ball/:submission_id', async (req, res) => {
     let id = parseInt(req.params.id);
     let contest = await Contest.findById(id);
     if (!contest) throw new ErrorMessage('无此比赛。');
-    if (!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) throw new ErrorMessage('您没有权限进行此操作。');
 
     let sid = parseInt(req.params.submission_id)
     let judge_state = await JudgeState.findById(sid)
@@ -1461,7 +1450,7 @@ app.get('/contest/:id/update_ended_contest_info', async (req, res) => {
     let id = parseInt(req.params.id)
     let c = await Contest.findById(id)
     if(!c) throw new ErrorMessage('找不到比赛。');
-    if (!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!res.locals.user || !await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) throw new ErrorMessage('您没有权限进行此操作。');
     let pids = await c.getProblems()
     await pids.mapAsync(async id => {
       let p = await Problem.findById(id)
@@ -1488,7 +1477,7 @@ app.get('/contest/:id/update_ended_contest_info', async (req, res) => {
 app.get('/contest/problem/statistics', async (req, res) => {
   try {
     if(!res.locals.user){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
-    if(!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+    if(!await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) throw new ErrorMessage('您没有权限进行此操作。');
 
     let prefix = req.query.prefix
     let contests = []
@@ -1649,7 +1638,7 @@ app.get('/contest/:id/cases_statistics', async (req, res) => {
 
 app.get('/contest/:id/note', async (req, res) => {
   try {
-    if(!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+    if(!res.locals.user || !await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) throw new ErrorMessage('您没有权限进行此操作。');
     let id = req.params.id
     let contest_note = await ContestNote.findOne({contest_id: id})
     if(!contest_note) res.send({note: '', note_html: ''});
@@ -1664,7 +1653,7 @@ app.get('/contest/:id/note', async (req, res) => {
 
 app.post('/contest/:id/note/update',  async (req, res) => {
   try {
-    if(!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+    if(!res.locals.user || !await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) throw new ErrorMessage('您没有权限进行此操作。');
     let id = parseInt(req.params.id)
     let action = parseInt(req.body.action)
     if (isNaN(id) || isNaN(action)) throw "参数错误"

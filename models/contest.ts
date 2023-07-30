@@ -81,7 +81,7 @@ export default class Contest extends Model {
   }
 
   async isSupervisior(user) {
-    return user && (user.is_admin || this.holder_id === user.id || this.admins.split('|').includes(user.id.toString()));
+    return user && (await user.hasPrivilege(syzoj.PrivilegeType.ManageUser) || this.holder_id === user.id || this.admins.split('|').includes(user.id.toString()));
   }
 
   allowedSeeingOthers() {

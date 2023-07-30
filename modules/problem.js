@@ -32,7 +32,7 @@ app.get('/problems', async (req, res) => {
     if(!res.locals.user) throw new ErrorMessage('您没有权限进行此操作。');
 
     const privileges = await res.locals.user.getPrivileges()
-    const allowedManageProblem = res.locals.user.is_admin || privileges.includes(syzoj.PrivilegeType.ManageProblem)
+    const allowedManageProblem = privileges.includes(syzoj.PrivilegeType.ManageProblem)
     const allowedAddProblem = privileges.includes(syzoj.PrivilegeType.AddProblem)
     if(!allowedManageProblem && !allowedAddProblem) throw new ErrorMessage('您没有权限进行此操作。');
 

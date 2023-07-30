@@ -8,7 +8,7 @@
             <i class="search icon"></i><input name="title" placeholder="比赛标题" type="text">
             <button class="ui mini button" type="submit">查找比赛</button>
         </div>
-        <% if(is_admin) {%>
+        <% if(allowedManage) {%>
             <div class="ui action left icon input inline" style="width: 180px; margin-right: 77px; margin-left: 20px ">
                 <i class="search icon"></i><input name="username" placeholder="用户名" type="text">
                 <button class="ui mini button" type="submit">查找用户</button>

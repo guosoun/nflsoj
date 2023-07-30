@@ -7,7 +7,7 @@
         <i class="search icon"></i><input name="title" placeholder="比赛标题" type="text">
         <button class="ui mini button" type="submit">查找比赛</button>
       </div>
-      <% if (user && user.is_admin) { %>
+      <% if (allowedManage) { %>
             <a href="/contest/problem/statistics" class="ui mini green right floated button" style="margin-left: 20px; ">
                 赛题统计
             </a>
@@ -25,7 +25,7 @@
           <th>结束时间</th>
           <th>描述</th>
 
-        <% if (is_admin) { %>
+        <% if (allowedManage) { %>
             <th>group_id</th>
             <th>创建者</th>
         <% } %>
@@ -52,7 +52,7 @@
           <td><%= syzoj.utils.formatDate(contest.end_time) %></td>
           <td class="font-content"><%- contest.subtitle %></td>
 
-        <% if (is_admin) { %>
+        <% if (allowedManage) { %>
             <td><%= contest.group_id %></td>
             <td><% if (contest.holder) { %><%= contest.holder.username %><% } else { %><i>无记录</i><% } %></td>
         <% } %>
@@ -67,7 +67,7 @@
         <i class="calendar icon" style="margin-bottom: 20px; "></i>
         暂无比赛
       </div>
-      <% if (user && user.is_admin) { %>
+      <% if (allowedManage) { %>
       <a href="<%= syzoj.utils.makeUrl(['contest', 0, 'edit']) %>" class="ui primary labeled icon button">
         <i class="ui icon write"></i>
         添加第一场比赛

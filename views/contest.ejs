@@ -9,7 +9,7 @@
 <% include header %>
 
 <div id="__xx">
-  <% if (res.locals.user.is_admin) {%>
+  <% if (isSupervisior) {%>
       <% include contest_side.ejs %>
   <%}%>
 </div>
@@ -66,7 +66,7 @@
             </style>
             <div class="ui buttons right floated">
 
-                <%if(res.locals.user.is_admin) {%>
+                <%if(isSupervisior) {%>
 
 
                 <%if(contest.open_problem) {%>
@@ -219,12 +219,12 @@
                 <td id="_td<%= i%>">
                   <a href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'problem', i]) %>">
                     <%= "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[(i - 1) % 26] + ". " + syzoj.utils.removeTitleTag(problem.problem.title) %>
-                    <% if (res.locals.user.is_admin && problem.problem.type == 'remote') { %><span class="ui tiny yellow circular label">V</span><% } %>
+                    <% if (isSupervisior && problem.problem.type == 'remote') { %><span class="ui tiny yellow circular label">V</span><% } %>
                   </a>
 
                 <% if (seeResult) { %>
 
-                <div id="show_tag_controled_<%=i%>" style="float: right; <%= (!res.locals.user.is_admin && contest.ended)? "display: none": "" %> ">
+                <div id="show_tag_controled_<%=i%>" style="float: right; <%= (!isSupervisior && contest.ended)? "display: none": "" %> ">
                     <%
                     if (problem.tags) {
                         for (let tag of problem.tags) {
