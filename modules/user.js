@@ -32,10 +32,9 @@ app.get('/ranklist', async (req, res) => {
       // query.orWhere('group_id LIKE :group_id', { group_id: `%${keyword}%` });
     } else {
       query.where('is_show = 1');
-    }
-
-    if (!res.locals.user.is_admin) {
-      query.andWhere('last_edit_user_id = :user_id', { user_id: res.locals.user.id });
+      if (!res.locals.user.is_admin) {
+        query.andWhere('last_edit_user_id = :user_id', { user_id: res.locals.user.id });
+      }
     }
 
     let paginate = syzoj.utils.paginate(await User.countForPagination(query), req.query.page, syzoj.config.page.ranklist);
