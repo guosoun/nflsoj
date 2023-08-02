@@ -273,7 +273,7 @@ app.get('/submission/:id', async (req, res) => {
     let page = req.query.no_jump ?  'submission_modal' : 'submission'
     res.render(page, {
       local_is_admin: res.locals.user.is_admin,
-      allow_code_copy: syzoj.config.allow_code_copy || res.locals.user.is_admin || res.locals.user.id === judge.user_id,
+      allow_code_copy: syzoj.config.allow_code_copy || await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser) || res.locals.user.id === judge.user_id,
       allow_tag_edit: res.locals.user.is_admin || (syzoj.config.allow_tag_edit && judge.user_id === res.locals.user.id && judge.status === 'Accepted'),
       info: getSubmissionInfo(judge, displayConfig),
       roughResult: getRoughResult(judge, displayConfig, false),

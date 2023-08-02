@@ -691,7 +691,7 @@ app.get('/contest/:id/repeat/:prefix', async (req, res) => {
     res.render('contest_repeat', {
       hide_problem_title: problems.length >= 6,
       main_style: problems.length >= 6 ? 'width: auto!important;' : undefined,
-      local_is_admin: await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
+      local_is_admin: res.locals.user && await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
       contest: contest,
       repeatlist: repeatlist,
       problems: problems,
@@ -899,7 +899,7 @@ app.get('/contest/:id/ranklist/:prefix', async (req, res) => {
     res.render('contest_ranklist', {
       hide_problem_title: problems.length >= 6,
       main_style: problems.length >= 6 ? 'width: auto!important;' : undefined,
-      local_is_admin: await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
+      local_is_admin: res.locals.user && await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
       contest: contest,
       ranklist: ranklist,
       problems: problems,
