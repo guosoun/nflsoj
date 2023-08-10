@@ -1015,9 +1015,10 @@ app.get('/problem/:id/testdata/download/:filename?', async (req, res) => {
 	
   try {
     if(!res.locals.user){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
+    if(!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
 
-    let key = req.query.key
-    if(!key || syzoj.utils.md5(key) !== "d81df2014e1c31a09dd3849ddf0b6414") throw new ErrorMessage('密码不正确。');
+    // let key = req.query.key
+    // if(!key || syzoj.utils.md5(key) !== "d81df2014e1c31a09dd3849ddf0b6414") throw new ErrorMessage('密码不正确。');
 
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
@@ -1049,6 +1050,7 @@ app.get('/problem/:id/testdata/download/:filename?', async (req, res) => {
 app.get('/problem/:id/zc/testdata/download/:filename?', async (req, res) => {
   try {
     if(!res.locals.user){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
+
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
 
