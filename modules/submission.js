@@ -325,7 +325,7 @@ app.post('/submission/:id/rejudge', async (req, res) => {
 
 app.post('/submission/:id/fake', async (req, res) => {
   try {
-    if (!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!res.locals.user || !await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) throw new ErrorMessage('您没有权限进行此操作。');
     let id = parseInt(req.params.id);
     let judge = await JudgeState.findById(id);
 
