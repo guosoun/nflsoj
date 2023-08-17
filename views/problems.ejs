@@ -107,7 +107,7 @@
         let url = tagListToggledThisTag ? syzoj.utils.makeUrl(['problems', 'tag', tagListToggledThisTag]) : syzoj.utils.makeUrl(['problems']);
         lastColor = tag.color;
       %>
-      <span class="ui header">
+      <span class="ui header" style="line-height: 30px;">
         <a href="<%= url %>" class="ui tiny <%= tag.color %> label">
           <%= tag.name %>
         </a>
