@@ -70,8 +70,14 @@ app.get('/problems', async (req, res) => {
       problem.judge_state = await problem.getJudgeState(res.locals.user, true);
       problem.tags = await problem.getTags();
     });
-
+    
+    let all_tags = await ProblemTag.find(); 
+    all_tags.sort((a, b) => {
+      return a.color > b.color ? 1 : -1;
+    });
+    
     res.render('problems', {
+      all_tags, 
       allowedManageTag: res.locals.user && await res.locals.user.hasPrivilege('manage_problem_tag'),
       problems: problems,
       paginate: paginate,
@@ -139,6 +145,9 @@ app.get('/problems/search', async (req, res) => {
       problem.tags = await problem.getTags();
     });
 
+    const tagRepository = getRepository(ProblemTag);
+    const tags = await tagRepository.find();
+    console.log(tags)
     res.render('problems', {
       allowedManageTag: res.locals.user && await res.locals.user.hasPrivilege('manage_problem_tag'),
       problems: problems,
@@ -210,7 +219,13 @@ app.get('/problems/tag/:tagIDs', async (req, res) => {
       return problem;
     });
 
+    let all_tags = await ProblemTag.find(); 
+    all_tags.sort((a, b) => {
+      return a.color > b.color ? 1 : -1;
+    });
+
     res.render('problems', {
+      all_tags, 
       allowedManageTag: res.locals.user && await res.locals.user.hasPrivilege('manage_problem_tag'),
       problems: problems,
       tags: tags,
@@ -1015,10 +1030,9 @@ app.get('/problem/:id/testdata/download/:filename?', async (req, res) => {
 	
   try {
     if(!res.locals.user){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
-    if(!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
 
-    // let key = req.query.key
-    // if(!key || syzoj.utils.md5(key) !== "d81df2014e1c31a09dd3849ddf0b6414") throw new ErrorMessage('密码不正确。');
+    let key = req.query.key
+    if(!key || syzoj.utils.md5(key) !== "d81df2014e1c31a09dd3849ddf0b6414") throw new ErrorMessage('密码不正确。');
 
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
@@ -1050,7 +1064,6 @@ app.get('/problem/:id/testdata/download/:filename?', async (req, res) => {
 app.get('/problem/:id/zc/testdata/download/:filename?', async (req, res) => {
   try {
     if(!res.locals.user){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
-
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
 
