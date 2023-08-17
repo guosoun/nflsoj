@@ -94,8 +94,10 @@
   </div>
 
   <div class="ui segment" style="height: 400px; overflow-y: auto; display: none;" id="tag_list">
-    <% 
-      let lastColor;
+    <% if (all_tags.length > 0) {%>
+    <p>
+      <% 
+      let lastColor = all_tags[0].color;
       for (let tag of all_tags) { 
         if (tag.color != lastColor) {%></p><p><%}
         let tagListToggledThisTag; 
@@ -110,7 +112,9 @@
           <%= tag.name %>
         </a>
       </span>
-      <% } %>
+      <% }%>
+    </p>
+    <% }%>
   </div>
   <% if (problems.length) { %>
   <div style="margin-bottom: 30px; ">
