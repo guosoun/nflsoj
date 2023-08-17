@@ -33,7 +33,8 @@ if (contest) {
     <div class="row">
       <h1 class="ui header" >
         <% if (contest) { %>
-          <%= this.alpha(pid) %>. <%= syzoj.utils.removeTitleTag(problem.title) %>
+          <%= this.alpha(pid) %>. <%= syzoj.utils.removeTitleTag(problem.title) %> 
+          <% if (problem.allowedEdit) { %> <a class="ui tiny blue label" href="<%= syzoj.utils.makeUrl(['problem', problem.id]) %>"> 转到题库</a> <% } %>
         <% } else { %>
           #<%= problem.id %>. <%= problem.title %><% if (problem.allowedEdit && !problem.is_public) { %><span class="ui tiny red label">未公开</span><% } %>
         <% } %>
