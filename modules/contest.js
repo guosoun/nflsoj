@@ -938,22 +938,27 @@ app.get('/contest/:id/submissions', async (req, res) => {
     // if contest is non-public, both system administrators and contest administrators can see it.
     if (!contest.is_public && !await contest.isSupervisior(res.locals.user)) throw new ErrorMessage('比赛未公开，请耐心等待 (´∀ `)');
 
-    if (contest.isEnded()) {
-      res.redirect(syzoj.utils.makeUrl(['submissions'], { contest: contest_id }));
-      return;
-    }
-
+    
     // if ( await checkgp(contest,res.locals.user) ){
-    //     ;
-    // }else{
-    //     throw new ErrorMessage('group not included, cannot enter !');
-    // }
-
+      //     ;
+      // }else{
+        //     throw new ErrorMessage('group not included, cannot enter !');
+        // }
+        
     const displayConfig = getDisplayConfig(contest);
     let problems_id = await contest.getProblems();
     const curUser = res.locals.user;
-
-    let user = req.query.submitter && await User.fromName(req.query.submitter);
+    if (contest.isEnded() || await contest.isSupervisior(curUser)) {
+      const newQuery = {...req.query}; 
+      if (newQuery.problem_id) {
+        newQuery.problem_id = problem_id = problems_id[parseInt(req.query.problem_id) - 1] || 0; 
+      }
+      newQuery.contest_id = contest_id;
+      res.redirect(syzoj.utils.makeUrl(['submissions'], newQuery));
+      return;
+    }
+        
+        let user = req.query.submitter && await User.fromName(req.query.submitter);
 
     let query = JudgeState.createQueryBuilder();
 
