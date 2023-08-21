@@ -322,6 +322,7 @@ $(function () {
           if(percent > 0) {
             $('#_td' + (i+1)).css('background', 'linear-gradient(to right, rgba(121,187,255,0.2) ' + percent+'%, #ffffff '+percent+'%, #ffffff 100%)')
           }
+          $('#_td' + (i+1)).attr('data-tooltip', `补题人数：${ac_num} / ${data.total}`)
       })
     }
   })
