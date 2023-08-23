@@ -743,7 +743,7 @@ app.post('/problem/:id/hate', async (req, res) => {
 
 async function getLocation(ip) {
   try {
-    let url = `http://ip-api.com/json/${ip}?fields=57353&lang=zh-Cn`;
+    let url = `http://ip-api.com/json/${ip}?fields=57353&lang=zh-CN`;
     let response = await fetch(url);
     let data = await response.json();
     if (data.status === "success") {
