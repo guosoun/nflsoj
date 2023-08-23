@@ -748,7 +748,7 @@ async function getLocation(ip) {
     let response = await fetch(url);
     let data = await response.json();
     if (data.status === "success") {
-      return data.country + data.regionName;
+      return data.regionName;
     } else if (data.message === "reserved range") return "局域网";
     else {
       syzoj.log("IP 所属地查询失败：" + data.message);
