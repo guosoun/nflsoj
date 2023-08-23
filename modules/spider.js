@@ -116,7 +116,6 @@ async function getCFTestdata(submission_id) {
     request({
       url: `https://codeforces.com/data/submitSource?submissionId=${submission_id}`,
       method: 'POST',
-      proxy: 'http://192.168.188.88:7890',
     }, (err, res, body) => {
       if (err) reject(err);
       else resolve(body);

@@ -94,6 +94,9 @@ export default class JudgeState extends Model {
   @TypeORM.Column({ nullable: true, type: "text" })
   submit_ip: string;
 
+  @TypeORM.Column({ nullable: true, type: "text" })
+  ip_location: string;
+
   /*
    * "type" indicate it's contest's submission(type = 1) or normal submission(type = 0) // or practice's submission(type = 2)
    * if it's contest's submission (type = 1), the type_info is contest_id

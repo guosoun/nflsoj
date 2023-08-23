@@ -11,7 +11,8 @@ const getSubmissionInfo = (s, displayConfig) => ({
     language: displayConfig.showCode ? ((s.language != null && s.language !== '') ? syzoj.languages[s.language].show : null) : null,
     codeSize: displayConfig.showCode ? s.code_length : null,
     submitTime: syzoj.utils.formatDate(s.submit_time),
-    submitIp: s.submit_ip || "未记录"
+    submitIp: s.submit_ip || "未记录",
+    ip_location: s.ip_location || "未记录"
 });
 
 const getRoughResult = (x, displayConfig, roughOnly) => {

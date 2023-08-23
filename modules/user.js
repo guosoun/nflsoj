@@ -163,7 +163,8 @@ app.get('/user/:id', async (req, res) => {
       }
       iplog[iplog.length - 1].log.push ({
         ip: x.ip,
-        time: x.login_time
+        time: x.login_time,
+        location: x.ip_location || "未记录"
       });
     });
 

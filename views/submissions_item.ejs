@@ -120,6 +120,7 @@ Vue.component('submission-item', {
   <% if (local_is_admin) { %> <td>{{data.info.usernick}}</td> <% } %>
   <td>{{ data.info.submitTime }}</td>
   <% if (local_is_admin) { %> <td>{{ data.info.submitIp }}</td> <% } %>
+  <% if (local_is_admin) { %> <td>{{ data.info.ip_location }}</td> <% } %>
   <td v-if="showRejudge">
     <a target="_parent" id="rejudge-button" :onclick="'check_rejudge(' + (statusString === 'Waiting' || statusString.startsWith('Running')).toString() + ')'" style="color: #000; " href="#"><i class="repeat icon"></i></a>
     <% if (active === 'submission') { %>

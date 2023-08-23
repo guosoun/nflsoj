@@ -741,6 +741,24 @@ app.post('/problem/:id/hate', async (req, res) => {
   await setEvaluate(req, res, 'Hate');
 });
 
+async function getLocation(ip) {
+  try {
+    let url = `http://ip-api.com/json/${ip}?fields=57353&lang=zh-Cn`;
+    let response = await fetch(url);
+    let data = await response.json();
+    if (data.status === "success") {
+      return data.country + data.regionName;
+    } else if (data.message === "reserved range") return "局域网";
+    else {
+      syzoj.log("IP 所属地查询失败：" + data.message);
+      return "未知";
+    }
+  } catch (e) {
+    syzoj.log("IP 所属地查询失败：" + e.toString());
+    return "未知";
+  }
+}
+
 app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1 }]), async (req, res) => {
   try {
     let id = parseInt(req.params.id);
@@ -768,7 +786,8 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
       rec = await LoginLog.create({
           user_id : curUser.id,
           login_time : new Date(),
-          ip : ip
+          ip : ip,
+          ip_location: await getLocation(ip)
       });
       rec.save();
       curUser.last_login_time = new Date()
@@ -798,7 +817,8 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
       if (!file.md5) throw new ErrorMessage('上传答案文件失败。');
       judge_state = await JudgeState.create({
         submit_time: parseInt((new Date()).getTime() / 1000),
-        submit_ip: res.locals.loginIp,
+        submit_ip: ip,
+        ip_location: await getLocation(ip),
         status: 'Unknown',
         task_id: randomstring.generate(10),
         code: file.md5,
@@ -820,7 +840,8 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
 
       judge_state = await JudgeState.create({
         submit_time: parseInt((new Date()).getTime() / 1000),
-        submit_ip: res.locals.loginIp,
+        submit_ip: ip,
+        ip_location: await getLocation(ip),
         status: 'Unknown',
         task_id: randomstring.generate(10),
         code: code,

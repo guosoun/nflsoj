@@ -219,6 +219,7 @@
                             <tr>
                               <th>日期</th>
                               <th>IP</th>
+                              <th>所属地</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -227,8 +228,16 @@
                                 <td><%= row.day %></td>
                                 <td>
                                   <% for (let i = 0;i < row.log.length; ++i) { %>
+                                    <% if (i != 0 && row.log[i].ip == row.log[i - 1].ip) { continue; } %>
                                     <% if (i != 0) { %>, <% } %>
                                     <span title="<%= row.log[i].time %>"><%= row.log[i].ip %></span>
+                                  <% } %>
+                                </td>
+                                <td>
+                                  <% for (let i = 0;i < row.log.length; ++i) { %>
+                                    <% if (i != 0 && row.log[i].location == row.log[i - 1].location) { continue; } %>
+                                    <% if (i != 0) { %>, <% } %>
+                                    <span title="<%= row.log[i].time %>"><%= row.log[i].location %></span>
                                   <% } %>
                                 </td>
                               </tr>

@@ -15,4 +15,7 @@ export default class loginlog extends Model {
 
   @TypeORM.Column({ nullable: true, type: "text" })
   ip: string;
+
+  @TypeORM.Column({ nullable: true, type: 'text' })
+  ip_location: string;
 }
