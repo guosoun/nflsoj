@@ -188,7 +188,8 @@ app.get('/submissions', async (req, res) => {
 
     res.render(page, {
       main_style: res.locals.user && await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser) ? 'width: 1500px;' : undefined,
-      local_is_admin: res.locals.user && await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
+      local_is_admin: res.locals.user && res.locals.user.is_admin,
+      local_is_teacher: res.locals.user && await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
       items: judge_state.map(x => ({
         info: getSubmissionInfo(x, displayConfig),
         token: (x.pending && x.task_id != null) ? jwt.sign({
@@ -272,7 +273,8 @@ app.get('/submission/:id', async (req, res) => {
 
     let page = req.query.no_jump ?  'submission_modal' : 'submission'
     res.render(page, {
-      local_is_admin: res.locals.user && await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
+      local_is_admin: res.locals.user && await res.locals.user.is_admin,
+      local_is_teacher: res.locals.user && await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser),
       allow_code_copy: syzoj.config.allow_code_copy || await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser) || res.locals.user.id === judge.user_id,
       allow_tag_edit: res.locals.user.is_admin || (syzoj.config.allow_tag_edit && judge.user_id === res.locals.user.id && judge.status === 'Accepted'),
       info: getSubmissionInfo(judge, displayConfig),

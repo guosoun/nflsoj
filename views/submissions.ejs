@@ -102,9 +102,10 @@
         <th v-if="displayConfig.showUsage">内存</th>
         <th v-if="displayConfig.showCode">代码 / 答案文件</th>
         <th>提交者</th>
-        <% if (local_is_admin) { %> <th>nick</th> <% } %>
+        <% if (local_is_teacher) { %> <th>nick</th> <% } %>
         <th>提交时间</th>
-        <% if (local_is_admin) { %> <th>提交 IP</th> <th>所属地</th><% } %>
+        <% if (local_is_teacher) { %> <th>提交 IP</th><% } %>
+        <% if (local_is_admin) { %> <th>所属地</th><% } %>
       </tr>
       </thead>
       <tbody>

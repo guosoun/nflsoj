@@ -76,7 +76,7 @@ Vue.component('submission-item', {
 </script>
 
 <script id="submissionItemTemplate" type="text/x-template">
-<tr <%- local_is_admin ? ':style=\"remote  ? {background: \'#FFFFE0\'} : {}\"' : '' %> >
+<tr <%- local_is_teacher ? ':style=\"remote  ? {background: \'#FFFFE0\'} : {}\"' : '' %> >
   <% if (active === 'submissions' || active === 'contest') { %>
   <td><a target="_parent" :href="submissionLink" @click="show"><b>#{{ data.info.submissionId }}</b></a></td>
   <% } else { %>
@@ -117,9 +117,9 @@ Vue.component('submission-item', {
     {{ formatSize(data.info.codeSize, 1) }}
   </td>
   <td><a target="_parent" :href="userLink">{{ data.info.user }}</a></td>
-  <% if (local_is_admin) { %> <td>{{data.info.usernick}}</td> <% } %>
+  <% if (local_is_teacher) { %> <td>{{data.info.usernick}}</td> <% } %>
   <td>{{ data.info.submitTime }}</td>
-  <% if (local_is_admin) { %> <td>{{ data.info.submitIp }}</td> <% } %>
+  <% if (local_is_teacher) { %> <td>{{ data.info.submitIp }}</td> <% } %>
   <% if (local_is_admin) { %> <td>{{ data.info.ip_location }}</td> <% } %>
   <td v-if="showRejudge">
     <a target="_parent" id="rejudge-button" :onclick="'check_rejudge(' + (statusString === 'Waiting' || statusString.startsWith('Running')).toString() + ')'" style="color: #000; " href="#"><i class="repeat icon"></i></a>
@@ -146,7 +146,7 @@ Vue.component('submission-item', {
     </div>
     <% } %>
   </td>
-  <% if (local_is_admin) { %>
+  <% if (local_is_teacher) { %>
     <td v-if="showRejudge">
       <a id="fake-button" :onclick="'check_fake()'" style="color: #000; " href="#"><i class="remove icon"></i></a>
       <% if (active === 'submission') { %>
