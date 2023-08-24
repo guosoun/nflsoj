@@ -744,6 +744,7 @@ app.post('/problem/:id/hate', async (req, res) => {
 
 async function getLocation(ip) {
   try {
+    if (!syzoj.config.get_ip_location) return null;
     let url = `http://ip-api.com/json/${ip}?fields=57353&lang=zh-CN`;
     let response = await fetch(url);
     let data = await response.json();
