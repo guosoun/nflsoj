@@ -745,12 +745,12 @@ app.post('/problem/:id/hate', async (req, res) => {
 async function getLocation(ip) {
   try {
     if (!syzoj.config.get_ip_location) return null;
-    let url = `http://ip-api.com/json/${ip}?fields=57353&lang=zh-CN`;
+    let url = `http://ip-api.com/json/${ip}?fields=57368&lang=zh-CN`;
     let response = await fetch(url);
     let data = await response.json();
     if (data.status === "success") {
-      return data.regionName;
-    } else if (data.message === "reserved range") return "局域网";
+      return data.regionName + data.city;
+    } else if (data.message === "reserved range" || data.message === "private range") return "局域网";
     else {
       syzoj.log("IP 所属地查询失败：" + data.message);
       return "未知";
