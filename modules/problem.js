@@ -777,23 +777,21 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
     if(!syzoj.submissionIntervalCheck(curUser.id))  throw new ErrorMessage('提交过于频繁，请稍后');
     let today = new Date();
     today.setHours(0), today.setMinutes(0), today.setSeconds(0), today.setMilliseconds(0);
-    let last = await LoginLog.findOne({
-        where: {
-          user_id: curUser.id,
-          login_time: TypeORM.MoreThanOrEqual(today)
-        },
-        order: { login_time: "DESC" }
-    });
+    let last = await curUser.getlastlogin();
+    let ip_location;
     if (!last || last.ip !== ip) {
+      ip_location = await getLocation(ip);
       rec = await LoginLog.create({
           user_id : curUser.id,
           login_time : new Date(),
           ip : ip,
-          ip_location: await getLocation(ip)
+          ip_location
       });
       rec.save();
       curUser.last_login_time = new Date()
       await curUser.save();
+    } else {
+      ip_location = last.ip_location;
     }
 
     let judge_state;
@@ -820,7 +818,7 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
       judge_state = await JudgeState.create({
         submit_time: parseInt((new Date()).getTime() / 1000),
         submit_ip: ip,
-        ip_location: await getLocation(ip),
+        ip_location,
         status: 'Unknown',
         task_id: randomstring.generate(10),
         code: file.md5,
@@ -843,7 +841,7 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
       judge_state = await JudgeState.create({
         submit_time: parseInt((new Date()).getTime() / 1000),
         submit_ip: ip,
-        ip_location: await getLocation(ip),
+        ip_location,
         status: 'Unknown',
         task_id: randomstring.generate(10),
         code: code,

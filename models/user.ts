@@ -8,6 +8,7 @@ import UserPrivilege from "./user_privilege";
 import Article from "./article";
 import Contest from "./contest";
 import Practice from "./practice";
+import LoginLog from "./loginlog";
 import {EntityManager} from "typeorm";
 
 @TypeORM.Entity()
@@ -345,5 +346,17 @@ export default class User extends Model {
     if (!this.end_time) return false;
     let now = syzoj.utils.getCurrentDate();
     return now >= this.end_time;
+  }
+
+  async getlastlogin() {
+    let today = new Date();
+    today.setHours(0), today.setMinutes(0), today.setSeconds(0), today.setMilliseconds(0);
+    return await LoginLog.findOne({
+      where: {
+        user_id: this.id,
+        login_time: TypeORM.MoreThanOrEqual(today)
+      },
+      order: { login_time: "DESC" }
+  });
   }
 }
