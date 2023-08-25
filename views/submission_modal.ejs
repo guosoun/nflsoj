@@ -115,8 +115,7 @@
         <th>提交者</th>
           <% if (local_is_teacher) { %> <th>nick</th> <% } %>
           <th>提交时间</th>
-          <% if (local_is_teacher) { %> <th>提交 IP</th> <% } %>
-          <% if (local_is_admin) { %> <th> 所属地</th> <% } %>
+          <% if (local_is_teacher) { %> <th>所属地</th> <% } %>
           <th v-if="showRejudge">重新评测</th>
           <% if (local_is_teacher) { %> <th v-if="showRejudge">fake</th> <% } %>
       </tr>
