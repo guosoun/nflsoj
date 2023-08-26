@@ -236,8 +236,10 @@
                                   <% } %>
                                 </td>
                                 <td>
+                                  <% set.clear(); %>
                                   <% for (let i = 0;i < row.log.length; ++i) { %>
-                                    <% if (i != 0 && row.log[i].location == row.log[i - 1].location) { continue; } %>
+                                    <% if (set.has(row.log[i].location)) { continue; } %>
+                                    <% set.add(row.log[i].location); %>
                                     <% if (i != 0) { %>, <% } %>
                                     <span title="<%= row.log[i].time %>"><%= row.log[i].location %></span>
                                   <% } %>
