@@ -745,6 +745,15 @@ app.post('/problem/:id/hate', async (req, res) => {
 async function getLocation(ip) {
   try {
     if (!syzoj.config.get_ip_location) return null;
+    const parts = ip.split('.');
+    if (parts[0] === '192' && parts[1] === '168') {
+      if (parts[2] == '31') return `D401-${parseInt(parts[3]) - 10}`;
+      if (parts[2] == '32') return `D405-${parseInt(parts[3]) - 10}`;
+      if (parts[2] == '33') return `D402-${parseInt(parts[3]) - 10}`;
+      if (parts[2] == '34') return `D406-${parseInt(parts[3]) - 10}`;
+      if (parts[2] == '8') return `D407-${parseInt(parts[3]) - 10}`;
+      return "局域网";
+    }
     let url = `http://ip-api.com/json/${ip}?fields=57368&lang=zh-CN`;
     let response = await fetch(url);
     let data = await response.json();
