@@ -227,8 +227,10 @@
                               <tr>
                                 <td><%= row.day %></td>
                                 <td>
+                                  <% const set = new Set(); %>
                                   <% for (let i = 0;i < row.log.length; ++i) { %>
-                                    <% if (i != 0 && row.log[i].ip == row.log[i - 1].ip) { continue; } %>
+                                    <% if (set.has(row.log[i].ip)) { continue; } %>
+                                    <% set.add(row.log[i].ip); %>
                                     <% if (i != 0) { %>, <% } %>
                                     <span title="<%= row.log[i].time %>"><%= row.log[i].ip %></span>
                                   <% } %>
