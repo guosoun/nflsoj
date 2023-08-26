@@ -168,6 +168,15 @@ app.get('/user/:id', async (req, res) => {
       });
     });
 
+
+    for (var i = 0; i < iplog.length; i++) {
+        iplog[i].log.sort((a, b) => {
+          if (a.ip < b.ip) return -1;
+          if (a.ip > b.ip) return 1;
+          return 0;
+      });
+    }
+
     user.iplog = iplog;
 
     res.render('user', {
