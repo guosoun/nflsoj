@@ -83,7 +83,7 @@ Vue.component('submission-item', {
   <% } else { %>
   <td><b>#{{ data.info.submissionId }}</b></td>
   <% } %>
-  <td style="max-width: 100px; overflow: hidden; " ref="problemLabel"><a target="_parent" ref="problemLabelTextFit" style="display: block; margin: 0 auto; line-height: 22px;" :href="problemLink"><b>#{{ config.inContest || config.inPractice ? alpha(data.info.problemId) : data.info.problemId }}.</b> {{ data.info.problemName }}</a></td>
+  <td style="max-width: 150px; overflow: hidden; " ref="problemLabel"><a target="_parent" ref="problemLabelTextFit" style="display: block; margin: 0 auto; line-height: 22px;" :href="problemLink"><b>#{{ config.inContest || config.inPractice ? alpha(data.info.problemId) : data.info.problemId }}.</b> {{ data.info.problemName }}</a></td>
   <% if (active === 'submissions') { %>
   <td><a target="_parent" :href="submissionLink" @click="show"><b><status-label :status="statusString" :progress="progress"></status-label></b></a></td>
   <% } else { %>
