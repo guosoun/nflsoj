@@ -133,8 +133,8 @@ Vue.component('submission-item', {
   <% if (local_is_teacher) { %> <td>{{data.info.usernick}}</td> <% } %>
   <td>{{ data.info.submitTime }}</td>
   <% if (local_is_teacher) { %> 
-    <td  <% if (local_is_admin) { %> v-bind:title="data.info.submitIp" <% } %> >{{ data.info.ip_location }} 
-      <a id="view-ip-button" :href="'https://ip138.com/iplookup.php?ip=' + data.info.submitIp" target="_blank"><i class="mini external alternate icon"></i></a>
+    <td :title="data.info.ip_location"> {{ data.info.ip_location.split('|')[0] }} 
+      <% if (local_is_admin) { %> <a :href="'https://ip138.com/iplookup.php?ip=' + data.info.submitIp" target="_blank"><i class="mini external alternate icon"></i></a <% } %> 
     </td>
   <% } %>
   <td v-if="showRejudge">
