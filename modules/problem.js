@@ -742,10 +742,60 @@ app.post('/problem/:id/hate', async (req, res) => {
   await setEvaluate(req, res, 'Hate');
 });
 
+async function getLocation1(ip) {
+  try {
+    let url = `https://ip.mcr.moe/?ip=${ip}`;
+    let response = await fetch(url);
+    let data = await response.json();
+    if (data.status === 200) {
+      return data.area;
+    } else {
+      syzoj.log("IP 所属地查询失败（1）：" + data.message);
+      return "未知";
+    }
+  } catch (e) {
+    syzoj.log("IP 所属地查询失败（1）：" + e.toString());
+    return "未知";
+  }
+}
+async function getLocation2(ip) {
+  try {
+    let url = `https://ip.mcr.moe/?ip=${ip}&db2`;
+    let response = await fetch(url);
+    let data = await response.json();
+    if (data.status === 200) {
+      return data.area;
+    } else {
+      syzoj.log("IP 所属地查询失败（2）：" + data.message);
+      return "未知";
+    }
+  } catch (e) {
+    syzoj.log("IP 所属地查询失败（2）：" + e.toString());
+    return "未知";
+  }
+}
+async function getLocation3(ip) {
+  try {
+    let url = `https://ip.zxinc.org/api.php?type=json&ip=${ip}`;
+    let response = await fetch(url);
+    let data = await response.json();
+    if (data.code === 0) {
+      return data.data.country;
+    } else {
+      syzoj.log("IP 所属地查询失败（3）");
+      return "未知";
+    }
+  } catch (e) {
+    syzoj.log("IP 所属地查询失败（3）：" + e.toString());
+    return "未知";
+  }
+}
 async function getLocation(ip) {
   try {
     if (!syzoj.config.get_ip_location) return null;
+    if (ip === '127.0.0.1') return "本机";
     const parts = ip.split('.');
+    if (parts[0] === '10' || (parts[0] === '172' && (parts[1] >= 16 && parts[1] <= 31))) return "局域网"
     if (parts[0] === '192' && parts[1] === '168') {
       if (parts[2] == '31') return `D401-${parseInt(parts[3]) - 10}`;
       if (parts[2] == '32') return `D405-${parseInt(parts[3]) - 10}`;
@@ -754,16 +804,7 @@ async function getLocation(ip) {
       if (parts[2] == '8') return `D407-${parseInt(parts[3]) - 10}`;
       return "局域网";
     }
-    let url = `http://ip-api.com/json/${ip}?fields=57368&lang=zh-CN`;
-    let response = await fetch(url);
-    let data = await response.json();
-    if (data.status === "success") {
-      return data.regionName + data.city;
-    } else if (data.message === "reserved range" || data.message === "private range") return "局域网";
-    else {
-      syzoj.log("IP 所属地查询失败：" + data.message);
-      return "未知";
-    }
+    return await getLocation1(ip) + '|' + await getLocation2(ip) + '|' + await getLocation3(ip);
   } catch (e) {
     syzoj.log("IP 所属地查询失败：" + e.toString());
     return "未知";

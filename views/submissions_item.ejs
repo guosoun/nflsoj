@@ -1,6 +1,18 @@
 <% include util %>
 <% include status_label %>
 
+<div class="ui modal" id="__modal" style="width: 80%;height: 84%;" >
+  <div class="header" id="forCode" style="display: flex">
+      <div> IP </div>
+  </div>
+
+  <div class="content" style="height: 88%">
+      <iframe name="__iframe" id="__iframe" width="100%" height="100%" style="border: medium none"></iframe>
+  </div>
+  <div class="actions">
+      <button class="ui cancel button primary"> 关闭 </button>
+  </div>
+</div>
 
 <script>
 function formatSize(x, precision) {
@@ -120,7 +132,11 @@ Vue.component('submission-item', {
   <td><a target="_parent" :href="userLink">{{ data.info.user }}</a></td>
   <% if (local_is_teacher) { %> <td>{{data.info.usernick}}</td> <% } %>
   <td>{{ data.info.submitTime }}</td>
-  <% if (local_is_teacher) { %> <td  <% if (local_is_admin) { %> v-bind:title="data.info.submitIp" <% } %> >{{ data.info.ip_location }} </td> <% } %>
+  <% if (local_is_teacher) { %> 
+    <td  <% if (local_is_admin) { %> v-bind:title="data.info.submitIp" <% } %> >{{ data.info.ip_location }} 
+      <a id="view-ip-button" :href="'https://ip138.com/iplookup.php?ip=' + data.info.submitIp" target="_blank"><i class="mini external alternate icon"></i></a>
+    </td>
+  <% } %>
   <td v-if="showRejudge">
     <a target="_parent" id="rejudge-button" :onclick="'check_rejudge(' + (statusString === 'Waiting' || statusString.startsWith('Running')).toString() + ')'" style="color: #000; " href="#"><i class="repeat icon"></i></a>
     <% if (active === 'submission') { %>
