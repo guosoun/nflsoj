@@ -348,3 +348,29 @@ app.post('/submission/:id/fake', async (req, res) => {
     });
   }
 });
+
+app.post('/submission/:id/updateIpLocation', async (req, res) => {
+  try {
+    try {
+      if (!res.locals.user || !await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) throw new ErrorMessage('您没有权限进行此操作。');
+      let id = parseInt(req.params.id);
+      let judge = await JudgeState.findById(id);
+      let newIpLocation = req.body.ipLocation;
+      
+      await judge.loadRelationships();
+      judge.ip_location = newIpLocation;
+      await judge.save();
+      res.send({ error_code: 1 });
+    } catch (e) {
+      syzoj.log(e);
+      let err = e;
+      if (!(err instanceof ErrorMessage)) {
+        err = new ErrorMessage(err.toString());
+      }
+      res.send({ error_code: 1001, error_message: err.message });
+    }
+  } catch (e) {
+    syzoj.log(e);
+    res.send({ error_code: 1002, error_message: "未知错误" });
+  }
+});
