@@ -804,7 +804,7 @@ async function getLocation(ip) {
       if (parts[2] == '8') return `D407-${parseInt(parts[3]) - 10}`;
       return "局域网";
     }
-    return await getLocation1(ip) + '|' + await getLocation2(ip) + '|' + await getLocation3(ip);
+    return (await getLocation1(ip) + '|' + await getLocation2(ip) + '|' + await getLocation3(ip)).replace(/\s+/g, '');
   } catch (e) {
     syzoj.log("IP 所属地查询失败：" + e.toString());
     return "未知";
