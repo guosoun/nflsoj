@@ -42,14 +42,11 @@
             <a class="ui small yellow button" href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'repeat']) %>">补题情况</a>
             <a class="ui small red button" href="<%= syzoj.utils.makeUrl( isSupervisior ?  ['summary'] : ['summary', 'edit'], isSupervisior ? {contest_id: contest.id} : {contest_id: contest.id, username: username}) %>">总结</a>
           <% } %>
-          <%if(isSupervisior || contest.ended) {%>
+          <%if(seeResult) {%>
               <a class="ui small purple button" href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'cases_statistics']) %>">统计</a>
           <%}%>
 
-          <% let submissionsUrl = seeResult ?
-            syzoj.utils.makeUrl(['submissions'], {contest: contest.id}) :
-            syzoj.utils.makeUrl(['contest', contest.id, 'submissions']); %>
-          <a class="ui small positive button" href="<%= submissionsUrl %>">提交记录</a>
+          <a class="ui small positive button" href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'submissions']) %>">提交记录</a>
 
           <% if (isSupervisior) { %>
             <a class="ui small button" href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'edit']) %>">编辑比赛</a>
@@ -57,7 +54,6 @@
 
 
         </div>
-          <%if(contest.ended) {%>
             <style>
                 .__btn_style {
                     ext-decoration:none;
@@ -66,7 +62,7 @@
             </style>
             <div class="ui buttons right floated">
 
-                <%if(isSupervisior) {%>
+                <%if(isSupervisior && contest.ended) {%>
 
 
                 <%if(contest.open_problem) {%>
@@ -82,9 +78,9 @@
                         <i class="sync icon" ></i>
                     </a>
                 </div>
-                <%} else {%>
-
-                    <div class="ui button icon" id="tag_show_popup"><i class="eye icon __btn_style"></i></div>
+                <% } %>
+                <% if (seeResult) { %>
+                    <div class="ui icon button" id="tag_show_popup"><i class="eye icon __btn_style"></i></div>
                     <div class="ui popup" style="width: 200px">
                         <div class="header">标签显示</div>
                         <%
@@ -93,7 +89,7 @@
                             i++;
                         %>
                             <div class="ui checkbox" style="margin-top: 10px">
-                                <input type="checkbox" tabindex="<%= i%>" id="<%= "problem_cb_" + i%>" onclick="to_show_problem_tag('<%= "problem_cb_" + i%>', <%= i%>)">
+                                <input type="checkbox" tabindex="<%= i%>" id="<%= "problem_cb_" + i%>" onclick="to_show_problem_tag('<%= "problem_cb_" + i%>', <%= i%>)" <%= tagDefaultDisplay ? 'checked' : '' %>>
                                 <label> <%= "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[(i - 1) % 26] + ". " + syzoj.utils.removeTitleTag(problem.problem.title) %> </label>
                             </div><br>
                         <%}%>
@@ -104,14 +100,18 @@
                         })
                         const to_show_problem_tag = (cb_id, i) => {
                             if($('#' + cb_id).is(':checked')) {
+                                $('#statisticsNum_' + i).show()
+                                $('#statisticsPlaceholder_' + i).hide()
                                 $('#show_tag_controled_' + i).show()
                             } else {
+                                $('#statisticsNum_' + i).hide()
+                                $('#statisticsPlaceholder_' + i).show()
                                 $('#show_tag_controled_' + i).hide()
                             }
                         }
                     </script>
                 <%}%>
-                <%if(existContestCollection !== -1) {%>
+                <%if(existContestCollection !== -1 && contest.ended) {%>
                     <div class="ui icon button"  data-tooltip="<%= existContestCollection ? '取消比赛收藏' : '收藏比赛'%>" data-inverted="" data-position="bottom center" id="__collect_contest_btn" onclick="collect_contest_req()" >
                         <i class="__btn_style heart icon <%= existContestCollection ? '' : 'outline'%>" id="__collect_contest_i"></i>
                     </div>
@@ -137,7 +137,6 @@
                     </script>
                 <%}%>
             </div>
-          <%}%>
       </div>
     </div>
   <% if (contest.information) { %>
@@ -224,7 +223,7 @@
 
                 <% if (seeResult) { %>
 
-                <div id="show_tag_controled_<%=i%>" style="float: right; <%= (!isSupervisior && contest.ended)? "display: none": "" %> ">
+                <div id="show_tag_controled_<%=i%>" style="float: right; <%= tagDefaultDisplay? "": "display: none" %> ">
                     <%
                     if (problem.tags) {
                         for (let tag of problem.tags) {
@@ -260,7 +259,24 @@
                 </td><% } %>
 
                 <% if (hasStatistics) { %>
-                  <td class="center aligned" style="white-space: nowrap; ">
+                <td class="center aligned" style="white-space: nowrap; ">
+                  <% if (seeResult) { %>
+                  <div id="statisticsNum_<%=i%>" style="<%= tagDefaultDisplay? "": "display: none" %> ">
+                    <a
+                      href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'submissions'], { problem_id: i, status: 'Accepted' }) %>"><%= problem.statistics.accepted %></a>
+                    /
+                    <a
+                      href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'submissions'], { problem_id: i, min_score: 1 }) %>"><%= problem.statistics.partially %></a>
+                    <% if (contest.type === 'noi' || contest.type === 'ioi' || contest.type === 'pc') { %>
+                    /
+                    <% } %>
+                    <a
+                      href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'submissions'], { problem_id: i }) %>"><%= problem.statistics.attempt %></a>
+                  </div>
+                  <div class="ui placeholder" id="statisticsPlaceholder_<%=i%>" style="<%= !tagDefaultDisplay? "": "display: none" %> ">
+                    <div class="line"></div>
+                  </div>
+                <% } else { %>
                   <a href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'submissions'], { problem_id: i, status: 'Accepted' }) %>"><%= problem.statistics.accepted %></a>
                   /
                     <a href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'submissions'], { problem_id: i, min_score: 1 }) %>"><%= problem.statistics.partially %></a>
@@ -268,8 +284,9 @@
                     /
                   <% } %>
                   <a href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'submissions'], { problem_id: i }) %>"><%= problem.statistics.attempt %></a>
-                  </td>
                 <% } %>
+                </td>
+              <% } %>
               </tr>
             <% } %>
             </tbody>

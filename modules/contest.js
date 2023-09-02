@@ -535,7 +535,8 @@ app.get('/contest/:id', async (req, res) => {
       isSupervisior: isSupervisior,
       weight: weight,
       username: curUser.username,
-      existContestCollection
+      existContestCollection,
+      tagDefaultDisplay: isSupervisior || existContestCollection === -1 // 赛时有提交
     });
   } catch (e) {
     syzoj.log(e);
