@@ -2,21 +2,34 @@
 <% include header %>
 <div class="padding">
     <% if (contests.length) { %>
-    <form action="<%= syzoj.utils.makeUrl(['find_contest']) %>" class="ui mini form" method="get" role="form">
-      <div class="ui action left icon input inline" style="width: 180px; margin-right: 77px; ">
-        <i class="search icon"></i><input name="title" placeholder="比赛标题" type="text">
-        <button class="ui mini button" type="submit">查找比赛</button>
-      </div>
-      <% if (allowedManage) { %>
-            <a href="/contest/problem/statistics" class="ui mini green right floated button" style="margin-left: 20px; ">
-                赛题统计
-            </a>
-            <a href="<%= syzoj.utils.makeUrl(['contest', 0, 'edit']) %>" class="ui mini labeled icon right floated button" style="margin-left: auto; ">
-          <i class="ui icon write"></i>
-          添加比赛
+    <div class="ui grid">
+      <div class="row"> 
+        <div class="ten wide column">
+          <form action="<%= syzoj.utils.makeUrl(['find_contest']) %>" class="ui mini form" method="get" role="form">
+            <div class="ui action left icon input inline" style="width: 180px; margin-right: 77px; ">
+              <i class="search icon"></i><input name="title" placeholder="比赛标题" type="text">
+              <button class="ui mini button" type="submit">查找比赛</button>
+            </div>
+          </form>
+        </div>
+      <div class="six wide right aligned column" style="margin-bottom: 10px;">
+        <% if (allowedManage) { %>
+          <a href="<%= syzoj.utils.makeUrl(['contest', 0, 'edit']) %>" class="ui mini labeled icon button"  style="margin-left: 10px; ">
+            <i class="ui icon write"></i>
+            添加比赛
+          </a>
+          <a href="/contest/problem/statistics" class="ui mini green button" style="margin-left: 10px; ">
+              赛题统计
+          </a>
+        <% } %>
+        <a href=<%= syzoj.utils.makeUrl(['cp', 'user', user.id]) %> class="ui mini labeled blue icon button"  style="margin-left: 10px; ">
+          <i class="ui icon folder open"></i>
+          我的比赛
         </a>
-      <% } %>
-    </form>
+      </div>
+    </div>
+  </div>
+    
     <table class="ui very basic center aligned table">
       <thead>
         <tr>

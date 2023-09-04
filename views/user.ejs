@@ -140,7 +140,7 @@
                        <div class="ui bottom attached segment"><%= show_user.username %><% if (show_user.nameplate) { %><%- show_user.nameplate %><% } %></div>
                     </div>
                   </div>
-                  <% if (res.locals.user && (res.locals.user.allowedEdit || res.locals.user.id == show_user.id)) { %>
+                  <% if (show_user.allowedEdit || res.locals.user.id == show_user.id) { %>
                     <div class="row">
                       <div class="column">
                         <h4 class="ui top attached block header">姓名</h4>
@@ -156,7 +156,7 @@
                       </div>
                     </div>
                   <% } %>
-                  <% if (res.locals.user && (res.locals.user.allowedEdit || res.locals.user.id == show_user.id)) { %>
+                  <% if (show_user.allowedEdit || res.locals.user.id == show_user.id) { %>
                     <div class="row">
                       <div class="column">
                         <h4 class="ui top attached block header">个性签名</h4>
