@@ -954,7 +954,7 @@ app.get('/contest/:id/submissions', async (req, res) => {
       if (newQuery.problem_id) {
         newQuery.problem_id = problem_id = problems_id[parseInt(req.query.problem_id) - 1] || 0; 
       }
-      newQuery.contest_id = contest_id;
+      newQuery.contest = contest_id;
       res.redirect(syzoj.utils.makeUrl(['submissions'], newQuery));
       return;
     }
