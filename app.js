@@ -295,11 +295,10 @@ global.syzoj = {
           return ip;
       }
 
-
+      res.locals.loginIp = getClientIp(req);
       if (req.session.user_id) {
         User.findById(req.session.user_id).then((user) => {
           res.locals.user = user;
-          res.locals.loginIp = getClientIp (req);
           // login_log(res.locals.user.id,res.locals.user.username,getClientIp(req));
           next();
         }).catch((err) => {
@@ -322,7 +321,6 @@ global.syzoj = {
               if (!user || user.isEnded ()) throw null;
               res.locals.user = user;
               req.session.user_id = user.id;
-              res.locals.loginIp = getClientIp (req);
               // login_log(res.locals.user.id,res.locals.user.username,getClientIp(req));
               next();
             }).catch(err => {
