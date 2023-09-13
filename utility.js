@@ -24,6 +24,7 @@ let filesize = require('file-size');
 let AsyncLock = require('async-lock');
 let JSDOM = require('jsdom').JSDOM;
 let renderer = require('./libs/renderer');
+const fetch = require('node-fetch');
 module.exports = {
   resolvePath(s) {
     let a = Array.from(arguments);

@@ -1,4 +1,3 @@
-const fetch = require('node-fetch');
 let Problem = syzoj.model('problem');
 let JudgeState = syzoj.model('judge_state');
 let FormattedCode = syzoj.model('formatted_code');
