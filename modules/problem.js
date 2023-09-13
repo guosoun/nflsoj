@@ -761,7 +761,7 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
     today.setHours(0), today.setMinutes(0), today.setSeconds(0), today.setMilliseconds(0);
     let last = await curUser.getlastlogin();
     let ip_location;
-    if (!last || last.ip !== ip) {
+    if (!last || last.ip !== ip || last.ip_location === null || last.ip_location.includes("未知")) {
       ip_location = await syzoj.utils.getLocation(ip);
       rec = await LoginLog.create({
           user_id : curUser.id,
