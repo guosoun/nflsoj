@@ -451,13 +451,12 @@ app.get('/user/:id/note', async (req, res) => {
 
 app.post('/user/:id/note/add', async (req, res) => {
   try {
-    // if(!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+    if(!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
     let id = parseInt(req.params.id)
     if (isNaN(id)) throw "参数错误"
     const userNote = new UserNote();
     userNote.user_id = id;
     userNote.note = req.body.note;
-    console.log(userNote.note)
     userNote.created_time = syzoj.utils.getCurrentDate();
     await userNote.save();
     res.send({msg: "ok"})
