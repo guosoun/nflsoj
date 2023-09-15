@@ -18,6 +18,7 @@
             <div class="content">
               <div class="center">
                 <a class="ui inverted button" href="<%= syzoj.utils.makeUrl(['user', show_user.id, 'edit']) %>"><i class="edit icon"></i>修改资料</a>
+                <% if (res.locals.user.is_admin) {%> <button class="ui inverted button" id="showNote"><i class="edit icon"></i>编辑批注</button> <% } %>
               </div>
             </div>
           </div>
@@ -403,4 +404,86 @@ $(function () {
   });
 });
 </script>
+
+<% if (res.locals.user.is_admin) {%> 
+<div class="ui modal" id="userNote">
+  <div class="header">批注</div>
+  <div id="notesContainer" class="ui feed" style="margin: 20px; height: 40vh; overflow: auto;" >
+      <!-- Notes will be inserted here -->
+  </div>
+  <form id="addNoteForm" class="ui form" style="margin: 20px;">
+    <div class="field">
+        <label>添加批注</label>
+        <textarea id="noteContent" class="markdown-edit"></textarea>
+    </div>
+    <button type="submit" class="ui button" style="margin: 0 auto; display: block;">提交</button>
+  </form>
+  <div class="actions">
+      <div class="ui black deny button">Close</div>
+  </div>
+</div>
+
+<script>
+  function fetchUserNote() {
+    console.log('aa')
+    $('#notesContainer').html('<div class="ui active inverted dimmer"><div class="ui text loader">Loading</div></div>');
+    $.get(`/user/<%=show_user.id%>/note`, function (data) {
+      console.log(data)
+      $('#notesContainer').empty();
+      if (data.length === 0) {
+        $('#notesContainer').html(`
+          <div class="ui placeholder segment" style="margin-top: 0px; ">
+            <div class="ui icon header">
+              <i class="ui file icon" style="margin-bottom: 20px; "></i>
+              暂无批注
+            </div>
+          </div>`
+        );
+      }
+      for (let i = 0; i < data.length; i++) {
+        let note = data[i];
+        let noteItem = `
+                <div class="event">
+                    <div class="label">
+                        <i class="pencil alternate icon"></i>
+                    </div>
+                    <div class="content">
+                        <div class="summary">
+                            Note ${i + 1}
+                            <div class="date">${note.time}</div>
+                        </div>
+                        <div class="extra text">
+                            ${note.html}
+                        </div>
+                    </div>
+                </div>
+            `;
+        $('#notesContainer').append(noteItem);
+
+      }
+      document.getElementById('notesContainer').scrollTop = document.getElementById('notesContainer').scrollHeight;
+    });
+  }
+  $(document).ready(function () {
+    // Open modal
+    $('#showNote').click(function () {
+      fetchUserNote();
+      $('#userNote').modal('show');
+    });
+  });
+
+  $('#addNoteForm').on('submit', function (e) {
+    e.preventDefault();
+    let noteContent = $('#noteContent').val();
+    if (noteContent) {
+      $.post('/user/<%=show_user.id%>/note/add', { note: noteContent }, function (data) {
+        $('#noteContent').val('');
+        fetchUserNote();
+
+      });
+    }
+  });
+</script>
+<% } %>
+
 <% include footer %>

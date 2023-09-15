@@ -10,6 +10,7 @@ const Practice = syzoj.model('practice');
 const PracticePlayer = syzoj.model('practice_player');
 const LoginLog = syzoj.model('loginlog');
 const Problem = syzoj.model('problem')
+const UserNote = syzoj.model('user_note')
 
 // Ranklist
 app.get('/ranklist', async (req, res) => {
@@ -427,3 +428,59 @@ app.get('/user/:id/problem_statistics/:type', async (req, res) => {
   }
 });
 
+app.get('/user/:id/note', async (req, res) => {
+  try {
+    if (!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+    let id = req.params.id;
+    let user_notes = await UserNote.find({ user_id: id });
+    if (!user_notes) {
+      res.send([]);
+    } else {
+      let result = [];
+      for (let user_note of user_notes) {
+        let html = await syzoj.utils.markdown(user_note.note);
+        let time = syzoj.utils.formatDate(user_note.created_time)
+        result.push({ note: user_note.note, html, id: user_note.id, time});
+      }
+      res.send(result);
+    }
+  } catch (e) {
+    res.send({ error: e });
+  }
+});
+
+app.post('/user/:id/note/add', async (req, res) => {
+  try {
+    // if(!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+    let id = parseInt(req.params.id)
+    if (isNaN(id)) throw "参数错误"
+    const userNote = new UserNote();
+    userNote.user_id = id;
+    userNote.note = req.body.note;
+    console.log(userNote.note)
+    userNote.created_time = syzoj.utils.getCurrentDate();
+    await userNote.save();
+    res.send({msg: "ok"})
+  } catch (e) {
+    res.send({error: e})
+  }
+});
+
+app.post('/user/:id/note/delete', async (req, res) => {
+  try {
+    if (!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+    const user_id = parseInt(req.params.id);
+    const note_id = req.body.note_id;
+    if (isNaN(user_id) || isNaN(note_id)) {
+      throw new ErrorMessage('参数错误');
+    }
+    const userNote = await UserNote.findOne({ id: note_id, user_id: user_id });
+    if (!userNote) {
+      throw new ErrorMessage('找不到要删除的笔记');
+    }
+    await userNote.remove();
+    res.send({msg: "ok"})
+  } catch (e) {
+    res.send({error: e})
+  }
+});
