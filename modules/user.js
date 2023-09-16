@@ -465,11 +465,11 @@ app.post('/user/:id/note/add', async (req, res) => {
   }
 });
 
-app.post('/user/:id/note/delete', async (req, res) => {
+app.get('/user/:id/note/delete/:note_id', async (req, res) => {
   try {
     if (!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
     const user_id = parseInt(req.params.id);
-    const note_id = req.body.note_id;
+    const note_id = parseInt(req.params.note_id);
     if (isNaN(user_id) || isNaN(note_id)) {
       throw new ErrorMessage('参数错误');
     }

@@ -123,10 +123,7 @@ function getColorOfScore(score) {
   		var scr = row.score;
   		return '<div class="morris-hover-row-label">分数：' + scr + '</div><div class="morris-hover-point">数量：' + row.count + '</div>';
   	},
-  	resize: true,
-    clickCallback: function(index, options, content, row) {
-      window.location.href = '/submissions?score_min=' + row.score + '&score_max=' + row.score  +  '&problem_id' + <%=problem.id%>;
-    }
+  	resize: true
   });
   </script>
   <h1 style="text-align: center; ">
