@@ -245,15 +245,15 @@ app.get('/problems/tag/:tagIDs', async (req, res) => {
 
 app.get('/problem/:id', async (req, res) => {
   try {
-    if(!res.locals.user){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
     let id = parseInt(req.params.id);
     let problem = await Problem.findById(id);
     if (!problem) throw new ErrorMessage('无此题目。');
-
+    
     problem.allowedEdit = await problem.isAllowedEditBy(res.locals.user);
     problem.allowedManage = await problem.isAllowedManageBy(res.locals.user);
-
+    
     let key = get_key(id);
+    if(!res.locals.user && key !== req.query.key){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
     console.log(key, req.query.key);
     if (!(
       req.query.key == key || (
@@ -265,8 +265,9 @@ app.get('/problem/:id', async (req, res) => {
 
     await syzoj.utils.markdown(problem, ['description', 'input_format', 'output_format', 'example', 'limit_and_hint']);
 
-    let state = await problem.getJudgeState(res.locals.user, true);
-    let allow_edit_tag = res.locals.user.is_admin || (syzoj.config.allow_tag_edit && state && state.status === 'Accepted')
+    let state = res.locals.user ? await problem.getJudgeState(res.locals.user, true) : null;
+    let allow_edit_tag = res.locals.user ? res.locals.user.is_admin || (syzoj.config.allow_tag_edit && state && state.status === 'Accepted') : null
+    
     problem.tags = await problem.getTags();
     await problem.loadRelationships();
 

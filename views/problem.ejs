@@ -12,7 +12,7 @@ if (contest) {
 %>
 <% include header %>
 <div id="__xx">
-    <% if (res.locals.user.is_admin) {%>
+    <% if (res.locals.user && res.locals.user.is_admin) {%>
         <% include problem_side.ejs %>
     <%}%>
 </div>
@@ -432,7 +432,7 @@ if (contest) {
         </div>
     </div>
     <% } %>
-    <% if (res.locals.user.is_admin && typeof key !== 'undefined' && key) { %>
+    <% if (res.locals.user && res.locals.user.is_admin && typeof key !== 'undefined' && key) { %>
       <div class='mini ui primary button' style='margin-left: 10px' onclick="copyLink()" id="copy_link_button">  复制外部可访问链接 </div>
       <script>
         function copyLink() {
