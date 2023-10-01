@@ -192,6 +192,7 @@ app.get('/cp/user/:id', async (req, res) => {
       c.player_num = ranklist.ranklist.player_num;
       for (let problem_id of problem_ids) {
         let score_detail = player_detail?.score_details[problem_id];
+        if (score_detail?.accepted) score_detail.score = 100;
         let problem = await Problem.findById(problem_id);
         let post_contest_score_detail = await problem.getJudgeState(user,true);
 
