@@ -34,14 +34,9 @@
     <script data-cfasync="false" src="<%- lib('jquery/3.3.1/jquery.min.js') %>"></script>
     <script>
       function copyToClip(content) {
-        var textarea = document.createElement('textarea');
-        document.body.appendChild(textarea);
-        textarea.style.position = 'absolute';
-        textarea.style.clip = 'rect(0 0 0 0)';
-        textarea.value = content;
-        textarea.select();
-        document.execCommand('copy', true);
+        navigator.clipboard.writeText(content);
       }
+
     </script>
     <% if (syzoj.config.google_analytics && syzoj.config.google_analytics !== 'UA-XXXXXXXX-X') { %>
     <script>
