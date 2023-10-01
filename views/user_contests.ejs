@@ -3,15 +3,13 @@
 
 <div class="padding">
     <div style="margin-top: 20px"></div>
-    <div>
-        <div class="ui action left icon input inline" style="width: 180px; margin-right: 77px; ">
-            <i class="search icon"></i><input placeholder="比赛标题" type="text" id="search_input">
-            <button class="ui mini button" onclick="searchContest()">查找比赛</button>
-        </div>
-        <div  style="font-size: 18px;margin-top: 20px; display: flex; justify-content: space-between" >
-            <div> contest history of <a id="page_url" href="/cp/user/<%= show_user.id %>?key=<%= key %>"> <%= show_user.username + ' - ' + show_user.nickname%> </a> </div>
-            <div> 总数量: <%= count%>  </div>
-        </div>
+    <div class="ui action left icon input mini inline" style="width: 180px; margin-right: 77px; ">
+        <i class="search icon"></i><input placeholder="比赛标题" type="text" id="search_input">
+        <button class="ui mini button" onclick="searchContest()">查找比赛</button>
+    </div>
+    <div  style="font-size: 18px;margin-top: 20px; display: flex; justify-content: space-between" >
+        <div> contest history of <a id="page_url" href="/cp/user/<%= show_user.id %>?key=<%= key %>"> <%= show_user.username + ' - ' + show_user.nickname%> </a> </div>
+        <div> 总数量: <%= count%>  </div>
     </div>
 
     <div style="margin-top: 20px"></div>
@@ -19,21 +17,52 @@
         <thead>
         <tr>
             <th class="one wide">名次</th>
-            <!-- <th class="one wide">总人数</th> -->
-            <th class="one wide"><div>得分</div> <div>(赛中/赛后/总分) </div></th>
-            <th class="one wide"><div>过题</div> <div>(赛中/赛后/总题数)</th>
-            <th class="two wide">详细</th>
+            <th class="one wide">总分</th>
+            <th class="three wide">赛时得分</th>
+            <th class="three wide">赛后补题</th>
+            <th class="three wide">总结</th>
             <th class="one wide">比赛页面</th>
-            <th class="two wide">开始时间</th>
+            <th class="three wide">开始时间</th>
         </tr>
         </thead>
         <tbody>
         <% data.forEach(item => { %>
             <tr>
+                <% console.log(item) %>
                 <td><%= item.rank == '--' || !norank ? item.rank : '**' %> </td>
-                <!-- <td><%= item.player_num%> </td> -->
-                <td>  <%= Math.round(item.score) %> / <%=  Math.round(item.score_after_contest) %> / <%= Math.round(item.total_score)%> </td>
-                <td> <%= item.solved%> / <%= item.solved_count%> / <%= item.problem_count%> </td>
+                <td> <%= item.score %> </td>
+                <td>
+                <%
+                let links = [];
+                for(let problem_id of item.problem_ids) {
+                    let score = item.problems_details[problem_id].in_contest.score;
+                    let judge_id = item.problems_details[problem_id].in_contest.judge_id;
+                    if(judge_id === 0) {
+                        links.push(score);
+                    } else {
+                        links.push('<a href="' + syzoj.utils.makeUrl(['submission', judge_id]) + '">' + score + '</a>');
+                    }
+                }
+                %>
+                <%- links.join(' / ') %>
+                </td>
+
+
+                <td>
+                <%
+                links = [];
+                for(let problem_id of item.problem_ids) {
+                    let score = item.problems_details[problem_id].post_contest.score;
+                    let judge_id = item.problems_details[problem_id].post_contest.judge_id;
+                    if(judge_id === 0) {
+                        links.push(score);
+                    } else {
+                        links.push('<a href="' + syzoj.utils.makeUrl(['submission', judge_id]) + '">' + score + '</a>');
+                    }
+                }
+                %>
+                <%- links.join(' / ') %>
+                </td>
                 <td>
                     <a href="<%= syzoj.utils.makeUrl(['summary'], {user_id: show_user.id, contest_id: item.contest.id})%>"> <%= item.contest.title%> </a>
                 </td>

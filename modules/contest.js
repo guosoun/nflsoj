@@ -175,6 +175,48 @@ app.get('/cp/user/:id', async (req, res) => {
       let c = {
         rank: '--',
         player_num: '--',
+        score: 0, // 总分
+        contest,
+        problem_ids,
+        problems_details: {},
+
+      }
+      let player_id = players_map[contest.id];
+      let player_detail = player_id ? await ContestPlayer.findOne({ id: player_id.id }) : undefined;
+      let ranklist = ranklist_map[contest.ranklist_id];
+      
+      if (player_id) {
+        c.rank = Object.entries(ranklist.ranklist).find(([rank, id]) => id === player_id.id)[0];
+        c.score = player_detail.score;
+      }
+      c.player_num = ranklist.ranklist.player_num;
+      for (let problem_id of problem_ids) {
+        let score_detail = player_detail?.score_details[problem_id];
+        let problem = await Problem.findById(problem_id);
+        let post_contest_score_detail = await problem.getJudgeState(user,true);
+
+        let problem_detail = {
+          in_contest: {
+            score: score_detail?.score ?? 0,
+            judge_id: score_detail?.judge_id ?? 0,
+          },
+          post_contest: {
+            score: post_contest_score_detail?.score ?? 0,
+            judge_id: post_contest_score_detail?.id ?? 0,
+          }
+        };
+
+        c.problems_details[problem_id] = problem_detail;
+      }
+      console.log(c.problems_details);
+      data.push(c)
+
+
+      
+      /*
+      let c = {
+        rank: '--',
+        player_num: '--',
         score: 0, // 比赛得分
         total_score: 0, // 总分
         score_after_contest: 0, // 赛后得分
@@ -222,8 +264,10 @@ app.get('/cp/user/:id', async (req, res) => {
         }
       }
       data.push(c)
+      */
     }
 
+    /*
     let not_solved_ids = Object.keys(not_solved)
     if(not_solved_ids.length > 0) {
       let sql = 'select distinct problem_id from judge_state where user_id=' + user.id + ' and problem_id in (' + not_solved_ids.join(",")  + ') and status=\'Accepted\''
@@ -235,7 +279,7 @@ app.get('/cp/user/:id', async (req, res) => {
         })
       })
     }
-
+    */
 
     res.render('user_contests', {
       data,
