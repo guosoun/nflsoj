@@ -17,7 +17,7 @@
         <thead>
         <tr>
             <th class="one wide">名次</th>
-            <th class="one wide">总分</th>
+            <th class="one wide">加权总分</th>
             <th class="three wide">赛时得分</th>
             <th class="three wide">赛后补题</th>
             <th class="three wide">总结</th>
@@ -64,10 +64,10 @@
                 <%- links.join(' / ') %>
                 </td>
                 <td>
-                    <a href="<%= syzoj.utils.makeUrl(['summary'], {user_id: show_user.id, contest_id: item.contest.id})%>"> <%= item.contest.title%> </a>
+                    <a href="<%= syzoj.utils.makeUrl(['summary'], {user_id: show_user.id, contest_id: item.contest.id})%>"> <%= item.contest.id%> </a>
                 </td>
                 <td>
-                    <a href="<%= syzoj.utils.makeUrl(['contest', item.contest.id])%>"> <%= item.contest.id%> </a>
+                    <a href="<%= syzoj.utils.makeUrl(['contest', item.contest.id])%>"> <%= item.contest.title%> </a>
                 </td>
                 <td>
                     <%= syzoj.utils.formatDate(item.contest.start_time) %>
