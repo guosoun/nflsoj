@@ -28,7 +28,6 @@
         <tbody>
         <% data.forEach(item => { %>
             <tr>
-                <% console.log(item) %>
                 <td><%= item.rank == '--' || !norank ? item.rank : '**' %> </td>
                 <td> <%= item.score %> </td>
                 <td>
@@ -37,8 +36,9 @@
                 for(let problem_id of item.problem_ids) {
                     let score = item.problems_details[problem_id].in_contest.score;
                     let judge_id = item.problems_details[problem_id].in_contest.judge_id;
+                    score = Math.round(score);
                     if(judge_id === 0) {
-                        links.push(Math.floor(score));
+                        links.push(score);
                     } else {
                         links.push('<a href="' + syzoj.utils.makeUrl(['submission', judge_id]) + '">' + score + '</a>');
                     }
@@ -54,8 +54,9 @@
                 for(let problem_id of item.problem_ids) {
                     let score = item.problems_details[problem_id].post_contest.score;
                     let judge_id = item.problems_details[problem_id].post_contest.judge_id;
+                    score = Math.round(score);
                     if(judge_id === 0) {
-                        links.push(Math.floor(score))
+                        links.push(score)
                     } else {
                         links.push('<a href="' + syzoj.utils.makeUrl(['submission', judge_id]) + '">' + score + '</a>');
                     }

@@ -209,7 +209,6 @@ app.get('/cp/user/:id', async (req, res) => {
 
         c.problems_details[problem_id] = problem_detail;
       }
-      console.log(c.problems_details);
       data.push(c)
 
 
