@@ -352,19 +352,17 @@ app.post('/contest/:id/edit', async (req, res) => {
     let contest_id = parseInt(req.params.id);
     let contest = await Contest.findById(contest_id);
     let ranklist = null;
+    let newContest = false;
     if (!contest) {
       // if contest does not exist, only system administrators can create one
       if (!res.locals.user || !await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) throw new ErrorMessage('您没有权限进行此操作。');
-
       contest = await Contest.create();
-
       contest.holder_id = res.locals.user.id;
-
       ranklist = await ContestRanklist.create();
-
       // Only new contest can be set type
       if (!['noi', 'ioi', 'acm', 'pc'].includes(req.body.type)) throw new ErrorMessage('无效的赛制。');
       contest.type = req.body.type;
+      newContest = true;
     } else {
       // if contest exists, both system administrators and contest administrators can edit it.
       if (!await contest.isSupervisior(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
@@ -397,6 +395,17 @@ app.post('/contest/:id/edit', async (req, res) => {
     contest.hide_title = req.body.hide_title === 'on'
 
     contest.group_id = req.body.group_id;
+
+    if (newContest) {
+      let pids = await contest.getProblems()
+      await pids.mapAsync(async id => {
+        let p = await Problem.findById(id)
+        p.is_public = false
+        p.publicizer_id = res.locals.user.id;
+        p.publicize_time = new Date();
+        await p.save();
+      });
+    }
 
     await contest.save();
 
