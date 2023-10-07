@@ -18,8 +18,8 @@
         <tr>
             <th class="one wide">名次</th>
             <th class="one wide">加权总分</th>
-            <th class="three wide">赛时得分</th>
-            <th class="three wide">赛后补题</th>
+            <th class="six wide">比赛中（赛后）</th>
+            <!-- <th class="three wide">赛后补题</th> -->
             <th class="one wide">总结</th>
             <th class="three wide">比赛页面</th>
             <th class="three wide">开始时间</th>
@@ -29,41 +29,29 @@
         <% data.forEach(item => { %>
             <tr>
                 <td><%= item.rank == '--' || !norank ? item.rank : '**' %> </td>
-                <td> <%= item.score %> </td>
+                <td> <%= item.score %> </td>                
                 <td>
-                <%
-                let links = [];
-                for(let problem_id of item.problem_ids) {
-                    let score = item.problems_details[problem_id].in_contest.score;
-                    let judge_id = item.problems_details[problem_id].in_contest.judge_id;
-                    score = Math.round(score);
-                    if(judge_id === 0) {
-                        links.push(score);
-                    } else {
-                        links.push('<a href="' + syzoj.utils.makeUrl(['submission', judge_id]) + '">' + score + '</a>');
+                    <%
+                    let links = [];
+                    for(let problem_id of item.problem_ids) {
+                        // 赛时得分
+                        let in_contest_score = item.problems_details[problem_id].in_contest.score;
+                        let in_contest_judge_id = item.problems_details[problem_id].in_contest.judge_id;
+                        in_contest_score = Math.round(in_contest_score);
+                    
+                        // 赛后得分
+                        let post_contest_score = item.problems_details[problem_id].post_contest.score;
+                        let post_contest_judge_id = item.problems_details[problem_id].post_contest.judge_id;
+                        post_contest_score = Math.round(post_contest_score);
+                    
+                        let in_contest_link = in_contest_judge_id === 0 ? in_contest_score : ('<a href="' + syzoj.utils.makeUrl(['submission', in_contest_judge_id]) + '">' + in_contest_score + '</a>');
+                        let post_contest_link = post_contest_judge_id === 0 ? post_contest_score : ('<a href="' + syzoj.utils.makeUrl(['submission', post_contest_judge_id]) + '">' + post_contest_score + '</a>');
+                    
+                        links.push(in_contest_link + " ( " + post_contest_link + " ) ");
                     }
-                }
-                %>
-                <%- links.join(' / ') %>
-                </td>
-
-
-                <td>
-                <%
-                links = [];
-                for(let problem_id of item.problem_ids) {
-                    let score = item.problems_details[problem_id].post_contest.score;
-                    let judge_id = item.problems_details[problem_id].post_contest.judge_id;
-                    score = Math.round(score);
-                    if(judge_id === 0) {
-                        links.push(score)
-                    } else {
-                        links.push('<a href="' + syzoj.utils.makeUrl(['submission', judge_id]) + '">' + score + '</a>');
-                    }
-                }
-                %>
-                <%- links.join(' / ') %>
-                </td>
+                    %>
+                    <%- links.join("<span style='font-weight: bold;'> &nbsp|&nbsp </span>") %>
+                </td>                    
                 <td>
                     <a href="<%= syzoj.utils.makeUrl(['summary'], {user_id: show_user.id, contest_id: item.contest.id})%>"> <%= item.contest.id%> </a>
                 </td>
