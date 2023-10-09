@@ -1,5 +1,13 @@
 <% this.title = '我的比赛' %>
 <% include header %>
+<style>
+.equalWidthScore {
+    display: inline-block;
+    width: 30px;
+    text-align: center;
+}
+
+</style>
 
 <div class="padding">
     <div style="margin-top: 20px"></div>
@@ -43,14 +51,24 @@
                         let post_contest_score = item.problems_details[problem_id].post_contest.score;
                         let post_contest_judge_id = item.problems_details[problem_id].post_contest.judge_id;
                         post_contest_score = Math.round(post_contest_score);
+                        // 用于获取颜色类
+                        function getScoreClass(score) {
+                            return 'equalWidthScore ' + 'score_' + parseInt(score / 10 || 0);
+                        }
+
+                        let in_contest_link = in_contest_judge_id === 0
+                            ? '<span class="score ' + getScoreClass(in_contest_score) + '">' + in_contest_score + '</span>'
+                            : ('<a href="' + syzoj.utils.makeUrl(['submission', in_contest_judge_id]) + '"><span class="score ' + getScoreClass(in_contest_score) + '">' + in_contest_score + '</span></a>');
+
+                        let post_contest_link = post_contest_judge_id === 0
+                            ? '<span class="score ' + getScoreClass(post_contest_score) + '">' + post_contest_score + '</span>'
+                            : ('<a href="' + syzoj.utils.makeUrl(['submission', post_contest_judge_id]) + '"><span class="score ' + getScoreClass(post_contest_score) + '">' + post_contest_score + '</span></a>');
+
                     
-                        let in_contest_link = in_contest_judge_id === 0 ? in_contest_score : ('<a href="' + syzoj.utils.makeUrl(['submission', in_contest_judge_id]) + '">' + in_contest_score + '</a>');
-                        let post_contest_link = post_contest_judge_id === 0 ? post_contest_score : ('<a href="' + syzoj.utils.makeUrl(['submission', post_contest_judge_id]) + '">' + post_contest_score + '</a>');
-                    
-                        links.push(in_contest_link + " ( " + post_contest_link + " ) ");
+                        links.push(in_contest_link + "(" + post_contest_link + ")");
                     }
                     %>
-                    <%- links.join("<span style='font-weight: bold;'> &nbsp|&nbsp </span>") %>
+                    <%- links.join("") %>
                 </td>                    
                 <td>
                     <a href="<%= syzoj.utils.makeUrl(['summary'], {user_id: show_user.id, contest_id: item.contest.id})%>"> <%= item.contest.id%> </a>
