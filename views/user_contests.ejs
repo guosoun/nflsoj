@@ -38,9 +38,10 @@
             <tr>
                 <td><%= item.rank == '--' || !norank ? item.rank : '**' %> </td>
                 <td> <%= item.score %> </td>                
-                <td>
+                <td style="text-align: center; ">
+                    <div style="text-align: left; display: inline-block;">
                     <%
-                    let links = [];
+                    let links = [], index = 0;
                     for(let problem_id of item.problem_ids) {
                         // 赛时得分
                         let in_contest_score = item.problems_details[problem_id].in_contest.score;
@@ -64,11 +65,16 @@
                             ? '<span class="score ' + getScoreClass(post_contest_score) + '">' + post_contest_score + '</span>'
                             : ('<a href="' + syzoj.utils.makeUrl(['submission', post_contest_judge_id]) + '"><span class="score ' + getScoreClass(post_contest_score) + '">' + post_contest_score + '</span></a>');
 
-                    
+                        
+                        if(index % 4 === 0 && index !== 0) {
+                            links.push("<br>");
+                        }
                         links.push(in_contest_link + "(" + post_contest_link + ")");
+                        index++;
                     }
                     %>
                     <%- links.join("") %>
+                    </div>
                 </td>                    
                 <td>
                     <a href="<%= syzoj.utils.makeUrl(['summary'], {user_id: show_user.id, contest_id: item.contest.id})%>"> <%= item.contest.id%> </a>
