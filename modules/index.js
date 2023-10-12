@@ -33,9 +33,36 @@ app.get('/', async (req, res) => {
       fortune = Divine(res.locals.user.username, res.locals.user.sex);
     }
 
-    let contests = await Contest.queryRange([1, 5], { is_public: true }, {
-      start_time: 'DESC'
-    });
+    let contests;
+    if (!await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) {
+      let mycont = await res.locals.user.getconts();
+      if (mycont.length === 0) {
+          // 如果 mycont 数组为空，修改查询以包含特定的 group_id 条件
+          contests = await Contest.queryRange([1, 5], { 
+              is_public: true, 
+              group_id: TypeORM.Like('%chk%') 
+          }, {
+              start_time: 'DESC'
+          });
+      } else {
+          // 如果 mycont 数组非空，创建一个自定义查询，包括 mycont、is_public 和 group_id 条件
+          let query = Contest.createQueryBuilder();
+          query.where(`id IN (:...mycont)`, { mycont: mycont })
+              .andWhere(`is_public = 1`)
+              .orWhere(`group_id like '%chk%'`)
+              .orderBy('start_time', 'DESC')
+              .limit(5)
+              .offset(0);
+          contests = await query.getMany();
+      }
+    } else {
+      // 如果用户具有 ManageUser 权限，执行原始查询
+      contests = await Contest.queryRange([1, 5], { is_public: true }, {
+          start_time: 'DESC'
+      });
+    }
+
+  
 
     let practices = await Practice.queryRange([1, 5], { is_public: true }, {
       start_time: 'DESC'
