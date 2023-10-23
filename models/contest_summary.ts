@@ -26,6 +26,9 @@ export default class ContestSummary extends Model{
     @TypeORM.Column({ nullable: true, type: "text" })
     summary: string;
 
+    @TypeORM.Column({ nullable: true, type: "text" })
+    teacher_note: string;
+
     @TypeORM.Column({ nullable: true, type: "integer" })
     post_time: number;
 

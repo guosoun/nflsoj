@@ -60,7 +60,7 @@ app.get('/summary', async (req, res) => {
             // query.andWhere(`contest_id = ${contest_id}`)
         }
 
-        if(!user && !cc)  throw new ErrorMessage('查询失败！！！');
+        if(!user && !cc)  throw new ErrorMessage('无效的比赛或用户信息。');
 
         // let paginate = syzoj.utils.paginate(await ContestPlayer.countForPagination(query), req.query.page, 30);
         // query.orderBy('contest_id', 'DESC')
@@ -106,7 +106,17 @@ app.get('/summary', async (req, res) => {
             if(!contest || contest.isRunning()) continue
             let s = await ContestSummary.getSummary(user_map[player.user_id], contest, player)
             let contest_summary = s.contest_summary
-            if(contest_summary) await syzoj.utils.markdown(contest_summary, ['summary'])
+            if(contest_summary) {
+                await syzoj.utils.markdown(contest_summary, ['summary']);
+                teacher_note_html = await syzoj.utils.markdown(contest_summary.teacher_note);
+                teacher_note_html = teacher_note_html && `
+                    <div class="ui small info message">
+                    <div class="header">教师点评</div>
+                    <p>${teacher_note_html}</p>
+                    </div>
+                `;
+                contest_summary.summary = `${contest_summary.summary}\n${teacher_note_html}`;
+            }
             for(let detail of Object.values(s.details)) {
                 let problem_summary = detail.problem_summary
                 if(problem_summary) await syzoj.utils.markdown(problem_summary, ['summary'])
@@ -228,3 +238,44 @@ app.post('/summary/update/user/:user_id/contest/:contest_id', async (req, res) =
         });
     }
 })
+
+app.post('/summary/update/teacher_note/:summary_id', async (req, res) => {
+    try {
+        // 检查当前登录的用户是否有权限进行操作
+        const local_user = res.locals.user;
+        if (!local_user || !await local_user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) {
+            throw new ErrorMessage('您没有权限进行此操作。');
+        }
+        
+        // 从请求的路径参数中提取总结的ID
+        const summary_id = req.params.summary_id;
+        if (!summary_id) {
+        }
+
+        // 从请求体中获取 teacher_note
+        const { teacher_note } = req.body;
+        if (typeof teacher_note !== 'string') {
+            throw new ErrorMessage('参数错误');
+        }
+
+        // 查找并更新 ContestSummary 记录
+        const cs = await ContestSummary.findById(summary_id);
+        if (!cs) {
+            throw new ErrorMessage('找不到对应的总结记录');
+        }
+
+        // 更新teacher_note字段
+        cs.teacher_note = teacher_note;
+        await cs.save();
+
+        // 更新成功，重定向或返回成功信息
+        res.json({ success: true, message: '更新成功', cs });
+    } catch (e) {
+        // 错误处理
+        if (e instanceof ErrorMessage) {
+            return res.json({ success: false, message: e.message });
+        }
+        console.error(e);
+        res.status(500).json({ success: false, message: '服务器内部错误' });
+    }
+});

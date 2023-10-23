@@ -53,7 +53,7 @@
                         <%}%>
                         <div> 总分: <%= s.score %> </div>
                         <div>
-                            <a href="<%= syzoj.utils.makeUrl(['summary', 'edit'], {username: user.username, contest_id:  s.contest.id})%>">  编辑总结 </a>
+                            <a href="<%= syzoj.utils.makeUrl(['summary', 'edit'], {username: s.user.username, contest_id:  s.contest.id})%>">  编辑总结 </a>
                         </div>
                     </td>
                     <%}%>
@@ -95,4 +95,79 @@
     <% include page  %>
 
 </div>
+<% if (summaries.length == 1 && allowedManage) { %>
+<div class="ui modal" id="addNoteModal">
+    <div class="header">编辑批注</div>
+    <div class="content">
+
+        <div id="errorMessage" class="ui hidden message">
+            <i class="close icon"></i>
+            <div class="header">
+                操作失败
+            </div>
+            <p id="errorText"></p>
+        </div>
+        <form class="ui form" id="addNoteForm">
+        <div class="field">
+            <label>批注内容</label>
+            <textarea id="noteContent" class="markdown-edit"><%=summaries[0].contest_summary?.teacher_note%></textarea>
+        </div>
+        </form>
+    </div>
+    <div class="actions">
+        <button class="ui black button" type="submit" form="addNoteForm">提交</button>
+        <button class="ui button deny">取消</button>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#addNote').click(function() {
+            $('#addNoteModal').modal('show');
+        });
+    });
+    $('#addNoteForm').on('submit', async function (e) {
+        e.preventDefault();
+
+        const summaryId = '<%=summaries[0].contest_summary?.id || '0' %>'; // 假设你的summary对象有一个id字段
+        const teacherNote = $('#noteContent').val();
+        try {
+            const response = await fetch('/summary/update/teacher_note/' + summaryId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ teacher_note: teacherNote })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                location.reload(); // 页面刷新
+            } else {
+                showError('批注更新失败：' + result.message);
+            }
+        } catch (error) {
+            console.error('请求失败：', error);
+            showError('发送请求失败');
+        }
+    });
+    $('#errorMessage .close').on('click', function() {
+        $(this).closest('#errorMessage').transition('fade');
+    });
+
+    function showError(message) {
+        $('#errorText').text(message);
+        $('#errorMessage').removeClass('hidden')
+    }
+</script>
+<div class="ui grid">
+    <div class="row">
+      <div class="column" style="width: 100px; position: fixed; top: 60px; right: 0px;">
+        <button class="circular ui small basic blue icon button" id="addNote" style="margin-top: 10px;"><i class="icon pencil"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+<% } %>
 <% include footer %>
