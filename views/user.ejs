@@ -16,8 +16,11 @@
           <% if (show_user.allowedEdit) { %>
           <div class="ui dimmer transition hidden">
             <div class="content">
-              <div class="center">
+              <div class="center" style="margin-bottom: 10px;">
                 <a class="ui inverted button" href="<%= syzoj.utils.makeUrl(['user', show_user.id, 'edit']) %>"><i class="edit icon"></i>修改资料</a>
+              </div>
+              <div class="center">
+                <a class="ui inverted button" href="<%= syzoj.utils.makeUrl(['cp', 'user', show_user.id]) %>"><i class="eye icon"></i>比赛记录</a>
               </div>
             </div>
           </div>
