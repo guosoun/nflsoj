@@ -150,9 +150,11 @@
                 <% } %>
                 <% if (contest.type === 'noi' || contest.type === 'ioi' || contest.type === 'pc') { %>
                   <td>
-                    <span class="score score_<%= parseInt((item.player.score / ranklist[0].player.score * 10) || 0) %>">
-                      <%= item.player.score %>
-                    </span>
+                    <% if (local_is_admin) { %><a href='<%= syzoj.utils.makeUrl(['summary'], {user_id: item.user.id, contest_id: contest.id}) %>'><% } %>
+                      <span class="score score_<%= parseInt((item.player.score / ranklist[0].player.score * 10) || 0) %>">
+                        <%= item.player.score %>
+                      </span>
+                      <% if (local_is_admin) { %></a><% } %>
                     <div class="submit_time">
                       <%= syzoj.utils.formatTime(latest - contest.start_time) %>
                     </div>
