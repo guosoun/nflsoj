@@ -34,28 +34,28 @@
                 </select>
             </div>
             <div class="inline fields">
-              <label>赛制</label>
+              <label>赛制 <% if (contest.id) { %>（谨慎修改）<% } %> </label>
               <div class="field">
                 <div class="ui radio checkbox">
-                  <input checked <% if (contest.id) { %>disabled <% } else { %>onclick="document.getElementsByName('hide_statistics')[0].checked=true;" <% } %>type="radio" name="type" id="type-noi" value="noi"<% if (contest.type === 'noi') { %> checked="checked"<% } %>>
+                  <input checked <% if (contest.id) { %> <% } else { %>onclick="document.getElementsByName('hide_statistics')[0].checked=true;" <% } %>type="radio" name="type" id="type-noi" value="noi"<% if (contest.type === 'noi') { %> checked="checked"<% } %>>
                   <label for="type-noi">NOI</label>
                 </div>
               </div>
               <div class="field">
                 <div class="ui radio checkbox">
-                  <input <% if (contest.id) { %>disabled <% } %>type="radio" name="type" id="type-ioi" value="ioi"<% if (contest.type === 'ioi') { %> checked="checked"<% } %>>
+                  <input type="radio" name="type" id="type-ioi" value="ioi"<% if (contest.type === 'ioi') { %> checked="checked"<% } %>>
                   <label for="type-ioi">IOI</label>
                 </div>
               </div>
               <div class="field">
                 <div class="ui radio checkbox">
-                  <input <% if (contest.id) { %>disabled <% } %>type="radio" name="type" id="type-acm" value="acm"<% if (contest.type === 'acm') { %> checked="checked"<% } %>>
+                  <input type="radio" name="type" id="type-acm" value="acm"<% if (contest.type === 'acm') { %> checked="checked"<% } %>>
                   <label for="type-acm">ICPC</label>
                 </div>
               </div>
               <div class="field">
                 <div class="ui radio checkbox">
-                    <input <% if (contest.id) { %>disabled <% } %>type="radio" name="type" id="type-pc" value="pc"<% if (contest.type === 'pc') { %> checked="checked"<% } %>>
+                    <input type="radio" name="type" id="type-pc" value="pc"<% if (contest.type === 'pc') { %> checked="checked"<% } %>>
                     <label for="type-pc">PC</label>
                 </div>
               </div>
@@ -141,4 +141,58 @@ $(function () {
     });
 });
 </script>
+<% if (contest.id) { %>
+<div class="ui basic modal" id="confirmationModal">
+  <div class="ui icon header">
+    <i class="exclamation triangle icon"></i>
+    <p>确认赛制修改</p>
+  </div>
+  <div class="content" style="text-align: center;">
+    <p>你已经更改了赛制类型，这可能会影响比赛的评分和排名。<br>
+    你确定要继续吗？</p>
+  </div>
+  <div class="actions">
+    <div class="ui red basic cancel inverted button">
+      <i class="remove icon"></i>
+      取消
+    </div>
+    <div class="ui green ok inverted button" id="confirmButton">
+      <i class="checkmark icon"></i>
+      确认
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    const typeInputs = $('input[name="type"]');
+    const originalType = typeInputs.filter(':checked').val();
+    const form = $('form');
+    const modal = $('#confirmationModal');
+    
+    form.submit(function (event) {
+      const selectedType = typeInputs.filter(':checked').val();
+      
+      if (originalType !== selectedType) {
+        event.preventDefault();
+        modal.modal({
+          closable: false,
+          onDeny: function () {
+            // 用户点击“取消”
+          },
+          onApprove: function () {
+            // 用户点击“确认”，再次提交表单
+            form.unbind('submit').submit();
+          }
+        }).modal('show');
+      }
+    });
+
+    $('#cancelButton').click(function () {
+      modal.modal('hide');
+    });
+  });
+</script>
+<% } %>
+
 <% include footer %>
