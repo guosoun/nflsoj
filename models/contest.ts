@@ -70,6 +70,8 @@ export default class Contest extends Model {
   @TypeORM.Column({ nullable: true, type: "text" })
   group_id: string;
 
+  @TypeORM.Column({ nullable: true, type: "integer" })
+  max_submissions: number;
 
   holder?: User;
   ranklist?: ContestRanklist;

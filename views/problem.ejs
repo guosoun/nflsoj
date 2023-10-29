@@ -425,7 +425,14 @@ if (contest) {
                 </div>
               </div>
               <div class="ui center aligned vertical segment" style="padding-bottom: 0; ">
-                  <button onclick="submit_code()" class="ui labeled icon button"> <i class="ui edit icon"></i>提交</button>
+                <% if (typeof submission_count_left !== 'undefined') { %> <div class="ui labeled button"> <% } %>
+                  <button onclick="submit_code()" class="ui labeled icon button"> <i class="ui edit icon"></i>提交</button> 
+                  <% if (typeof submission_count_left !== 'undefined') { %>
+                    <div class="ui basic left pointing label">
+                      剩余提交次数：<span id="submission-count"><%=submission_count_left%></span>
+                    </div>
+                  <% } %>
+                <% if (typeof submission_count_left !== 'undefined') { %> </div>  <% } %>
               </div>
             <% } %>
           </form>
@@ -466,6 +473,18 @@ if (contest) {
   var lastSubmitted = '';
 
   function submit_code() {
+
+    var countElement = document.getElementById('submission-count');
+    if (countElement) {
+      var currentCount = parseInt(countElement.textContent, 10);
+
+      // Decrease count if it is more than 0
+      if (currentCount > 0) {
+        var newCount = currentCount - 1;
+        countElement.textContent = newCount.toString();
+      }
+    }
+
     if (!$('#submit_code input[name=answer]').val().trim() && !editor.getValue().trim()) return false;
     $('#submit_code input[name=language]').val($('#languages-menu .item.active').data('value'));
     lastSubmitted = editor.getValue();

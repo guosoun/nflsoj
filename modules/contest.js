@@ -393,6 +393,7 @@ app.post('/contest/:id/edit', async (req, res) => {
     contest.hide_username = req.body.hide_username === 'on';
     contest.hide_title = req.body.hide_title === 'on'
 
+    contest.max_submissions = parseInt(req.body.max_submissions);
     contest.group_id = req.body.group_id;
 
     if (newContest) {
@@ -1250,7 +1251,20 @@ app.get('/contest/:id/problem/:pid', async (req, res) => {
       user_id: res.locals.user.id
     }) === 0;
 
+
+    let submission_count_left = undefined;
+    if (!contest.ended && contest.max_submissions) {
+      const query = JudgeState.createQueryBuilder()
+      .where('user_id = :user_id', { user_id: curUser.id })
+      .andWhere('type = 1')
+      .andWhere('type_info = :contest_id', { contest_id: contest_id })
+      .andWhere('problem_id = :problem_id', { problem_id: problem.id });
+      const submissionCount = await query.getCount();
+      submission_count_left = contest.max_submissions - submissionCount;
+    }
+
     res.render('problem', {
+      submission_count_left,
       collect_if_submit,
       pid: pid,
       contest: contest,

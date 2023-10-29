@@ -10,6 +10,7 @@ let Article = syzoj.model('article');
 let LoginLog = syzoj.model('loginlog');
 let ProblemEvaluate = syzoj.model('problem_evaluate');
 let ProblemNote = syzoj.model('problem_note');
+let ContestPlayer = syzoj.model('contest_player');
 let child_process = require('child_process')
 
 const randomstring = require('randomstring');
@@ -749,6 +750,8 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
     let problem = await Problem.findById(id);
     let ip = res.locals.loginIp;
     let curUser = res.locals.user;
+    let contest_id = parseInt(req.query.contest_id);
+    let practice_id = parseInt(req.query.practice_id);
 
     if (!problem) throw new ErrorMessage('无此题目。');
     if(problem.type === syzoj.ProblemType.Remote) {
@@ -756,7 +759,7 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
     }
     else if (problem.type !== 'submit-answer' && !syzoj.config.enabled_languages.includes(req.body.language)) throw new ErrorMessage('不支持该语言。');
     if (!curUser) throw new ErrorMessage('请登录后继续。', { '登录': syzoj.utils.makeUrl(['login'], { 'url': syzoj.utils.makeUrl(['problem', id]) }) });
-    if(!syzoj.submissionIntervalCheck(curUser.id))  throw new ErrorMessage('提交过于频繁，请稍后');
+    if(!contest_id && !syzoj.submissionIntervalCheck(curUser.id))  throw new ErrorMessage('提交过于频繁，请稍后');
     let today = new Date();
     today.setHours(0), today.setMinutes(0), today.setSeconds(0), today.setMilliseconds(0);
     let last = await curUser.getlastlogin();
@@ -836,8 +839,6 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
       });
     }
 
-    let contest_id = parseInt(req.query.contest_id);
-    let practice_id = parseInt(req.query.practice_id);
     let contest, practice, pid = -1;
     if (contest_id) {
       contest = await Contest.findById(contest_id);
@@ -847,6 +848,17 @@ app.post('/problem/:id/submit', app.multer.fields([{ name: 'answer', maxCount: 1
 
       pid = problems_id.indexOf(id) + 1
       if (pid <= 0) throw new ErrorMessage('无此题目。');
+      
+      if (contest.max_submissions) {
+        const query = JudgeState.createQueryBuilder()
+        .where('user_id = :user_id', { user_id: curUser.id })
+        .andWhere('type = 1')
+        .andWhere('type_info = :contest_id', { contest_id: contest_id })
+        .andWhere('problem_id = :problem_id', { problem_id: id });
+        const submissionCount = await query.getCount();
+        if (submissionCount >= contest.max_submissions)
+          throw new ErrorMessage('已达到赛时该题目的提交次数上限。');
+      }
 
       judge_state.type = 1;
       judge_state.type_info = contest_id;

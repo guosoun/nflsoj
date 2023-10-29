@@ -17,14 +17,21 @@
                 <input type="text" name="group_id" class="markdown-edit" value="<%= contest.group_id %>">
             </div>
 
-            <div class="field">
+
+            <div class="fields">
+              <div class="fourteen wide field">
                 <label>试题列表</label>
                 <select class="ui fluid search dropdown" multiple="" id="search_problems" name="problems">
-                <% for (let problem of problems) { %>
-                <option value="<%= problem.id %>" selected>#<%= problem.id %>. <%= problem.title %></option>
-                <% } %>
-                </select>
-            </div>
+                  <% for (let problem of problems) { %>
+                    <option value="<%= problem.id %>" selected>#<%= problem.id %>. <%= problem.title %></option>
+                    <% } %>
+                  </select>
+                </div>
+              <div class="two wide field">
+                <label>赛时提交次数</label>
+                <input type="number" name="max_submissions" value="<%= contest.max_submissions || 0 %>">
+              </div>
+            </div>  
             <div class="field">
                 <label>比赛管理员</label>
                 <select class="ui fluid search dropdown" multiple="" id="search_admins" name="admins">
@@ -76,41 +83,46 @@
                 <label>结束时间</label>
                 <input type="text" name="end_time" value="<%= syzoj.utils.formatDate(contest.end_time || syzoj.utils.getCurrentDate()) %>">
             </div>
-            <div class="inline field">
-              <label class="ui header">公开</label>
-              <div class="ui toggle checkbox">
-                <input type="checkbox"<% if (contest.is_public) { %> checked<% } %> name="is_public">
-                <label><span style="visibility: hidden; ">　</span></label>
+            
+            <div class="fields">
+              <div class="inline field">
+                <label class="ui header">公开</label>
+                <div class="ui toggle checkbox">
+                  <input type="checkbox"<% if (contest.is_public) { %> checked<% } %> name="is_public">
+                  <label><span style="visibility: hidden; ">　</span></label>
+                </div>
               </div>
-            </div>
-            <div class="inline field">
-              <label class="ui header">隐藏统计信息</label>
-              <div class="ui toggle checkbox">
-                <input checked type="checkbox"<% if (contest.hide_statistics) { %> checked<% } %> name="hide_statistics">
-                <label><span style="visibility: hidden; ">　</span></label>
+              <div class="inline field">
+                <label class="ui header">隐藏统计信息</label>
+                <div class="ui toggle checkbox">
+                  <input checked type="checkbox"<% if (contest.hide_statistics) { %> checked<% } %> name="hide_statistics">
+                  <label><span style="visibility: hidden; ">　</span></label>
+                </div>
               </div>
-            </div>
-            <div class="inline field">
-              <label class="ui header">隐藏用户名</label>
-              <div class="ui toggle checkbox">
-                <input type="checkbox"<% if (contest.hide_username) { %> checked<% } %> name="hide_username">
-                <label><span style="visibility: hidden; ">　</span></label>
+              <div class="inline field">
+                <label class="ui header">隐藏用户名</label>
+                <div class="ui toggle checkbox">
+                  <input type="checkbox"<% if (contest.hide_username) { %> checked<% } %> name="hide_username">
+                  <label><span style="visibility: hidden; ">　</span></label>
+                </div>
               </div>
-            </div>
-            <div class="inline field">
-              <label class="ui header">比赛期间隐藏标题</label>
-              <div class="ui toggle checkbox">
+              <div class="inline field">
+                <label class="ui header">比赛期间隐藏标题</label>
+                <div class="ui toggle checkbox">
                   <input type="checkbox"<% if (contest.hide_title) { %> checked<% } %> name="hide_title">
                   <label><span style="visibility: hidden; ">　</span></label>
+                </div>
               </div>
             </div>
+            
+            
             <div style="text-align: center; "><button id="submit_button" type="submit" class="ui labeled icon blue button"><i class="ui edit icon"></i>提交</button></div>
           </div>
         </form>
-<script>
-$(function () {
-  $('#search_admins')
-    .dropdown({
+        <script>
+          $(function () {
+            $('#search_admins')
+            .dropdown({
       debug: true,
       apiSettings: {
         url: '/api/v2/search/users/{query}',
