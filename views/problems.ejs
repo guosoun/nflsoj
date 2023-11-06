@@ -128,9 +128,10 @@
         <% } %>
         <th class="one wide"><%- createSortableTitle('id', '编号' , true) %></th>
         <th class="left aligned"><%- createSortableTitle('title', '题目名称' , true) %></th>
-        <th class="one wide"><%- createSortableTitle('source', '题目来源' , false) %></th>
+        <th class="one wide"><%- '题目来源' %></th>
         <th class="one wide"><%- createSortableTitle('ac_num', '通过' , false) %></th>
-        <th class="one wide"> <%- createSortableTitle('submit_num', '最近过题日期' , false)%> </th>
+        <th class="one wide"> <%- '最近过题日期'%> </th>
+        <th class="one wide"> <%- '出现次数'%> </th>
 
         <!--        <th class="one wide">- createSortableTitle('submit_num', '提交', false) </th>-->
         <!--        <th class="one wide">通过率</th>-->
@@ -189,6 +190,9 @@
         <td>
           <%= problem.submit_num < 1000000 ? "-" :
                       syzoj.utils.formatDate(problem.submit_num).substring(0, 10) %>
+        </td>
+        <td>
+          <%= problem.contestCount%>
         </td>
         <!--            <td> problem.submit_num </td>-->
         <!--           <td> problem.submit_num != 0 ? (((problem.ac_num / problem.submit_num * 100) || 0).toFixed(2) + '%') : '-'</td>-->
