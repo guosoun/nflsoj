@@ -17,7 +17,6 @@ const randomstring = require('randomstring');
 const fs = require('fs-extra');
 const jwt = require('jsonwebtoken');
 const {QueryBuilder} = require("typeorm");
-const puppeteer = require('puppeteer');
 
 let Judger = syzoj.lib('judger');
 let CodeFormatter = syzoj.lib('code_formatter');
@@ -298,17 +297,16 @@ app.get('/problem/pdf/:ids', async (req, res) => {
     if(!res.locals.user){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
     if(!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
     const ids = req.params.ids.split(',').map(id => parseInt(id.trim(), 10));
-    const browser = await puppeteer.launch({headless: 'new'});
-    const page = await browser.newPage();
-
-    // 创建一个用于存储所有页面内容的空数组
-    let pagesContent = [];
+    let combinedContent = '<!DOCTYPE html><html><head><title>Problems</title></head><body>';
     let index = 0;
+
     for (const id of ids) {
       const problem = await Problem.findById(id);
-      if (!problem) continue; 
+      if (!problem) {
+        continue; // Skip non-existing problems
+      }
 
-      // 生成 HTML 内容
+      // Generate HTML content as before
       await syzoj.utils.markdown(problem, ['description', 'input_format', 'output_format', 'example', 'limit_and_hint']);
       alpha = number => {
         if (number && parseInt(number) == number && parseInt(number) > 0) return String.fromCharCode('A'.charCodeAt(0) + parseInt(number) - 1);
@@ -316,8 +314,8 @@ app.get('/problem/pdf/:ids', async (req, res) => {
       let htmlContent = `
         <div style="break-after: page;">
           <h1>${alpha(index + 1)}. ${syzoj.utils.removeTitleTag(problem.title)}</h1>
-          <strong>时间限制:</strong> ${problem.time_limit} 毫秒<br>
-          <strong>内存限制:</strong> ${problem.memory_limit} MB<br>
+          <strong>时间限制:</strong> ${problem.time_limit} ms<br>
+          <strong>内存限制:</strong> ${problem.memory_limit} MIB<br>
           ${problem.description ? '<h2>题目描述</h2>' + problem.description : ''}
           ${problem.input_format ? '<h2>输入格式</h2>' + problem.input_format : ''}
           ${problem.output_format ? '<h2>输出格式</h2>' + problem.output_format : ''}
@@ -325,31 +323,10 @@ app.get('/problem/pdf/:ids', async (req, res) => {
           ${problem.limit_and_hint ? '<h2>数据范围与提示</h2>' + problem.limit_and_hint : ''}
         </div>
       `;
-      pagesContent.push(htmlContent);
+      combinedContent += htmlContent;
       index++;
     }
-    // 合并所有页面内容，并为每个页面设置样式以在打印时分页
-    let combinedContent = pagesContent.join('');
-    await page.setContent(combinedContent, {
-      waitUntil: 'networkidle0' // 确保页面上的所有资源都被加载完毕
-    });
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      margin: {
-        top: '1cm',
-        right: '1cm',
-        bottom: '1cm',
-        left: '1cm'
-      }
-    });
-
-    await browser.close();
-
-    // 设置响应头
-    res.setHeader('Content-Type', 'application/pdf');
-    // 假设所有ID都是连续的，为PDF文件命名。您可能需要创建更复杂的命名规则
-    res.setHeader('Content-Disposition', `attachment; filename=problems.pdf`);
-    res.send(pdfBuffer);
+    res.send(combinedContent);
   } catch (e) {
     syzoj.log(e);
     res.render('error', {
@@ -357,6 +334,7 @@ app.get('/problem/pdf/:ids', async (req, res) => {
     });
   }
 });
+
 
 app.get('/problem/:id/export', async (req, res) => {
   try {
