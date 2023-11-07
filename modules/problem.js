@@ -296,7 +296,7 @@ app.get('/problem/:id', async (req, res) => {
 app.get('/problem/pdf/:ids', async (req, res) => {
   try {
     if(!res.locals.user){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
-    if(!res.locals.user || !res.locals.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+    if(!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
     const ids = req.params.ids.split(',').map(id => parseInt(id.trim(), 10));
     const browser = await puppeteer.launch({headless: 'new'});
     const page = await browser.newPage();
