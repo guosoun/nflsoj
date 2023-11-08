@@ -134,5 +134,6 @@
   "allow_code_copy": true,
   "allow_tag_edit": true,
   "enable_spider": true,
-  "get_ip_location": true
+  "get_ip_location": true,
+  "auto_logout_time": 240
 }
