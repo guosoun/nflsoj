@@ -297,7 +297,15 @@ app.get('/problem/pdf/:ids', async (req, res) => {
     if(!res.locals.user){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
     if(!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
     const ids = req.params.ids.split(',').map(id => parseInt(id.trim(), 10));
-    let combinedContent = '<!DOCTYPE html><html><head><title>Problems</title></head><body>';
+    let combinedContent = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <title>Problems</title>
+        <link href="/cdnjs/semantic-ui/2.4.1/semantic.min.css" rel="stylesheet">
+      </head>
+      <body>
+    `;
     let index = 0;
 
     for (const id of ids) {
