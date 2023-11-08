@@ -70,6 +70,9 @@ app.get('/problems', async (req, res) => {
       problem.allowedEdit = await problem.isAllowedEditBy(res.locals.user);
       problem.judge_state = await problem.getJudgeState(res.locals.user, true);
       problem.tags = await problem.getTags();
+      problem.contestCount = await Contest.createQueryBuilder()
+      .where(`problems REGEXP '^(.*[^0-9])?${problem.id}([^0-9].*)?$'`)
+      .getCount();
     });
     
     let all_tags = await ProblemTag.find(); 
@@ -144,6 +147,9 @@ app.get('/problems/search', async (req, res) => {
       problem.allowedEdit = await problem.isAllowedEditBy(res.locals.user);
       problem.judge_state = await problem.getJudgeState(res.locals.user, true);
       problem.tags = await problem.getTags();
+      problem.contestCount = await Contest.createQueryBuilder()
+      .where(`problems REGEXP '^(.*[^0-9])?${problem.id}([^0-9].*)?$'`)
+      .getCount();
     });
 
     let all_tags = await ProblemTag.find(); 
@@ -218,6 +224,9 @@ app.get('/problems/tag/:tagIDs', async (req, res) => {
       problem.allowedEdit = await problem.isAllowedEditBy(res.locals.user);
       problem.judge_state = await problem.getJudgeState(res.locals.user, true);
       problem.tags = await problem.getTags();
+      problem.contestCount = await Contest.createQueryBuilder()
+      .where(`problems REGEXP '^(.*[^0-9])?${problem.id}([^0-9].*)?$'`)
+      .getCount();
 
       return problem;
     });
