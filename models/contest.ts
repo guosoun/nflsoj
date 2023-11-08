@@ -73,6 +73,9 @@ export default class Contest extends Model {
   @TypeORM.Column({ nullable: true, type: "integer" })
   max_submissions: number;
 
+  @TypeORM.Column({ default: true })
+  allow_test_code: boolean;
+
   holder?: User;
   ranklist?: ContestRanklist;
   player?: ContestPlayer;

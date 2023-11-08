@@ -138,9 +138,9 @@ if (contest) {
           </a>
 
         <% } %>
-        <% if(problem.type !== 'submit-answer' && problem.type !== 'interaction') {%>
+        <% if(problem.type !== 'submit-answer' && problem.type !== 'interaction' && !(typeof contest !== 'undefined' && contest && !contest.allow_test_code)) {%>
         <% include code_test%>
-        <a class="small ui blue button" href="javascript:;" onclick="show_code_test_modal()">测试</a>
+        <a class="small ui violet button" href="javascript:;" onclick="show_code_test_modal()">测试</a>
         <%}%>
 
       </div>

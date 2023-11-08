@@ -391,7 +391,8 @@ app.post('/contest/:id/edit', async (req, res) => {
     contest.is_public = req.body.is_public === 'on';
     contest.hide_statistics = req.body.hide_statistics === 'on';
     contest.hide_username = req.body.hide_username === 'on';
-    contest.hide_title = req.body.hide_title === 'on'
+    contest.hide_title = req.body.hide_title === 'on';
+    contest.allow_test_code = req.body.allow_test_code === 'on'
 
     contest.max_submissions = parseInt(req.body.max_submissions);
     contest.group_id = req.body.group_id;

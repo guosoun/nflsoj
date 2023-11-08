@@ -44,7 +44,7 @@
               <label>赛制 <% if (contest.id) { %>（谨慎修改）<% } %> </label>
               <div class="field">
                 <div class="ui radio checkbox">
-                  <input checked <% if (contest.id) { %> <% } else { %>onclick="document.getElementsByName('hide_statistics')[0].checked=true;" <% } %>type="radio" name="type" id="type-noi" value="noi"<% if (contest.type === 'noi') { %> checked="checked"<% } %>>
+                  <input type="radio" name="type" id="type-noi" value="noi"<% if (contest.type === 'noi' || !contest.id) { %> checked="checked"<% } %>>
                   <label for="type-noi">NOI</label>
                 </div>
               </div>
@@ -110,6 +110,13 @@
                 <label class="ui header">比赛期间隐藏标题</label>
                 <div class="ui toggle checkbox">
                   <input type="checkbox"<% if (contest.hide_title) { %> checked<% } %> name="hide_title">
+                  <label><span style="visibility: hidden; ">　</span></label>
+                </div>
+              </div>
+              <div class="inline field">
+                <label class="ui header">允许测试代码</label>
+                <div class="ui toggle checkbox">
+                  <input type="checkbox"<% if (contest.allow_test_code || !contest.id) { %> checked<% } %> name="allow_test_code">
                   <label><span style="visibility: hidden; ">　</span></label>
                 </div>
               </div>
@@ -204,6 +211,16 @@
       modal.modal('hide');
     });
   });
+</script>
+<% } else { %>
+<script>
+$(document).ready(function() {
+  $('input[type=radio][name=type]').change(function() {
+    if(!$('#type-noi').is(':checked')) {
+      $('input[name="allow_test_code"]').prop('checked', false);
+    }
+  });
+});
 </script>
 <% } %>
 
