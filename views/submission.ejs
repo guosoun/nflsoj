@@ -161,6 +161,11 @@
     <div style="margin-top: 0px; margin-bottom: 14px; " v-if="content != null && content !== ''">
         <p v-if="title" class="transition visible">
            <strong v-html="title"></strong>
+           <% if (local_is_admin) { %>
+            <a :href="download" v-if="download" download>
+              <i class="download icon"></i>
+            </a>
+           <% } %>
         </p>
         <div class="ui existing segment">
           <slot></slot>

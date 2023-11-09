@@ -1139,6 +1139,8 @@ app.get('/problem/:id/testdata/download/:filename?', async (req, res) => {
     });
   }
 });
+
+/*
 app.get('/problem/:id/zc/testdata/download/:filename?', async (req, res) => {
   try {
     if(!res.locals.user){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
@@ -1169,6 +1171,7 @@ app.get('/problem/:id/zc/testdata/download/:filename?', async (req, res) => {
     });
   }
 });
+*/
 
 app.get('/problem/:id/download/additional_file', async (req, res) => {
   try {
