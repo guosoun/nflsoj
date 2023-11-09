@@ -13,7 +13,6 @@ const interfaces = require('../libs/judger_interfaces')
 
 const jwt = require('jsonwebtoken');
 const { getSubmissionInfo, getRoughResult, processOverallResult } = require('../libs/submissions_process');
-const hide_title_replace = "ABCD"
 
 async function contest_check_open(contest){
     let gid = contest.group_id;
@@ -111,7 +110,6 @@ app.get('/contests', async (req, res) => {
 
     await contests.forEachAsync(async x => {
       x.subtitle = await syzoj.utils.markdown(x.subtitle);
-      if (x.hide_title) x.title = hide_title_replace;
       x.holder = await User.findById(x.holder_id);
     });
 
@@ -479,8 +477,6 @@ app.get('/contest/:id', async (req, res) => {
       for(let p of problems) {
         contest.open_problem |= !p.is_public
       }
-    } else if(contest.hide_title){
-      contest.title = hide_title_replace
     }
 
     problems = problems.map(x => ({ problem: x, status: null, judge_id: null, statistics: null }));
@@ -580,6 +576,12 @@ app.get('/contest/:id', async (req, res) => {
     if(contest.ended && !player) {
       let cc = await ContestCollection.findOne({contest_id: contest.id, user_id: curUser.id})
       existContestCollection = cc ? 1 : 0;
+    }
+
+    if (!contest.ended && contest.hide_title) {
+      for(let problem of problems){
+        problem.problem.title = '';
+      }
     }
 
     res.render('contest', {
@@ -1263,6 +1265,9 @@ app.get('/contest/:id/problem/:pid', async (req, res) => {
       const submissionCount = await query.getCount();
       submission_count_left = contest.max_submissions - submissionCount;
     }
+
+    if (!contest.ended && contest.hide_title) 
+      problem.title = '';
 
     res.render('problem', {
       submission_count_left,

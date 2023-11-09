@@ -3,7 +3,7 @@
 if (typeof contest === 'undefined') contest = null;
 if (typeof practice === 'undefined') practice = null;
 if (contest) {
-  this.title = this.alpha(pid) + '. ' + syzoj.utils.removeTitleTag(problem.title) + ' - ' + contest.title + ' - 比赛';
+  this.title = this.alpha(pid) + (problem.title && '. ' + syzoj.utils.removeTitleTag(problem.title)) + ' - ' + contest.title + ' - 比赛';
 } else if (practice) {
   this.title = this.alpha(pid) + '. ' + syzoj.utils.removeTitleTag(problem.title) + ' - ' + practice.title + ' - 练习';
 } else {
@@ -33,7 +33,7 @@ if (contest) {
     <div class="row">
       <h1 class="ui header" >
         <% if (contest) { %>
-          <%= this.alpha(pid) %>. <%= syzoj.utils.removeTitleTag(problem.title) %> 
+          <%= this.alpha(pid) + (problem.title && ". " + syzoj.utils.removeTitleTag(problem.title)) %> 
         <% } else { %>
           #<%= problem.id %>. <%= problem.title %><% if (problem.allowedEdit && !problem.is_public) { %><span class="ui tiny red label">未公开</span><% } %>
         <% } %>
