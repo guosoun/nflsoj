@@ -463,7 +463,7 @@ app.post('/admin/rejudge', async (req, res) => {
 
     if (req.body.status) {
       query.andWhere('status = :status', { status: req.body.status });
-      w += `AND status = ${req.body.status} `
+      w += `AND status = '${req.body.status}'`;
     }
 
     if (req.body.problem_id) {
