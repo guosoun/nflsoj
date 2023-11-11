@@ -121,7 +121,7 @@ function getColorOfScore(score) {
   	labels: ['number'],
   	hoverCallback: function(index, options, content, row) {
   		var scr = row.score;
-  		return `<a class="morris-hover-row-label" href=/submissions?min_score=${scr}&max_score=${scr}&problem=<%=problem.id%>> 分数：` + scr + `</div><div class="morris-hover-point">数量：` + row.count + `</a>`;
+  		return `<a class="morris-hover-row-label" href=/submissions?min_score=${scr}&max_score=${scr}&problem_id=<%=problem.id%>> 分数：` + scr + `</div><div class="morris-hover-point">数量：` + row.count + `</a>`;
   	},
   	resize: true
   });
