@@ -184,8 +184,16 @@ app.get('/cp/user/:id', async (req, res) => {
       let ranklist = ranklist_map[contest.ranklist_id];
       
       if (player_id) {
-        c.rank = Object.entries(ranklist.ranklist).find(([rank, id]) => id === player_id.id)[0];
         c.score = player_detail.score;
+        c.rank = 1;
+        for (const id of Object.values(ranklist.ranklist)) {
+          if (typeof id === 'number') {
+            const player = await ContestPlayer.findOne({ id: id });
+            if (player && player.score > c.score) {
+              c.rank++;
+            }
+          }
+        }
       }
       c.player_num = ranklist.ranklist.player_num;
       for (let problem_id of problem_ids) {
