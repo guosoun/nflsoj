@@ -188,7 +188,7 @@ app.get('/cp/user/:id', async (req, res) => {
         c.rank = 1;
         for (const id in Object.values(ranklist.ranklist)) {
           if (ranklist.ranklist.hasOwnProperty(id) && id !== "player_num") {
-            const player = await ContestPlayer.findOne({ id: ranklist[id] });
+            const player = await ContestPlayer.findOne({ id: ranklist.ranklist[id] });
             if (player && player.score > c.score) {
               c.rank++;
             }
