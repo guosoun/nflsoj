@@ -146,8 +146,9 @@
 
 
   </code-box>
-
+  <% if (active.startsWith('submission')) { %>
   <code-box v-if="detailResult && detailResult.compile" no-escape title="编译信息" v-bind:content="detailResult.compile.message"></code-box>
+  <% } %> 
   <code-box v-if="detailResult" title="系统信息" v-bind:content="detailResult.systemMessage"></code-box>
 
     <% if (local_is_teacher && remote) { %>

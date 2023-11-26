@@ -1,227 +1,365 @@
 <% this.title = contest.id ? '编辑比赛' : '新建比赛' %>
 <% include header %>
-<div class="padding">
-        <form action="<%= syzoj.utils.makeUrl(['contest', contest.id, 'edit']) %>" method="post">
-          <div class="ui form">
-              <div class="field">
-                <label>比赛名称</label>
-                <input type="text" name="title" value="<%= contest.title %>">
-              </div>
-              <div class="field">
-                <label>比赛描述</label>
-                <input type="text" name="subtitle" class="markdown-edit" value="<%= contest.subtitle %>">
-              </div>
 
-            <div class="field">
-                <label>比赛分组(可以用'|'分隔同时开放给多组;'all'表示完全公开;'chk'表示可被申请)</label>
-                <input type="text" name="group_id" class="markdown-edit" value="<%= contest.group_id %>">
-            </div>
-
-
-            <div class="fields">
-              <div class="fourteen wide field">
-                <label>试题列表</label>
-                <select class="ui fluid search dropdown" multiple="" id="search_problems" name="problems">
-                  <% for (let problem of problems) { %>
-                    <option value="<%= problem.id %>" selected>#<%= problem.id %>. <%= problem.title %></option>
-                    <% } %>
-                  </select>
-                </div>
-              <div class="two wide field">
-                <label>赛时提交次数</label>
-                <input type="number" name="max_submissions" value="<%= contest.max_submissions || 0 %>">
-              </div>
-            </div>  
-            <div class="field">
-                <label>比赛管理员</label>
-                <select class="ui fluid search dropdown" multiple="" id="search_admins" name="admins">
-                <% for (let admin of admins) { %>
-                <option value="<%= admin.id %>" selected><%= admin.username %></option>
-                <% } %>
-                </select>
-            </div>
-            <div class="inline fields">
-              <label>赛制 <% if (contest.id) { %>（谨慎修改）<% } %> </label>
-              <div class="field">
-                <div class="ui radio checkbox">
-                  <input type="radio" name="type" id="type-noi" value="noi"<% if (contest.type === 'noi' || !contest.id) { %> checked="checked"<% } %>>
-                  <label for="type-noi">NOI</label>
-                </div>
-              </div>
-              <div class="field">
-                <div class="ui radio checkbox">
-                  <input type="radio" name="type" id="type-ioi" value="ioi"<% if (contest.type === 'ioi') { %> checked="checked"<% } %>>
-                  <label for="type-ioi">IOI</label>
-                </div>
-              </div>
-              <div class="field">
-                <div class="ui radio checkbox">
-                  <input type="radio" name="type" id="type-acm" value="acm"<% if (contest.type === 'acm') { %> checked="checked"<% } %>>
-                  <label for="type-acm">ICPC</label>
-                </div>
-              </div>
-              <div class="field">
-                <div class="ui radio checkbox">
-                    <input type="radio" name="type" id="type-pc" value="pc"<% if (contest.type === 'pc') { %> checked="checked"<% } %>>
-                    <label for="type-pc">PC</label>
-                </div>
-              </div>
-            </div>
-            <div class="field">
-                <label>排行参数（格式：<code>{ "题目 ID": 分值倍数 }</code>）</label>
-                <input type="text" name="ranking_params" value="<%= contest.ranklist ? JSON.stringify(contest.ranklist.ranking_params) : '' %>">
-            </div>
-            <div class="field">
-                <label>比赛公告</label>
-                <textarea rows="5" name="information" class="markdown-edit"><%= contest.information %></textarea>
-            </div>
-            <div class="field">
-                <label>开始时间</label>
-                <input type="text" name="start_time" value="<%= syzoj.utils.formatDate(contest.start_time || syzoj.utils.getCurrentDate()) %>">
-            </div>
-            <div class="field">
-                <label>结束时间</label>
-                <input type="text" name="end_time" value="<%= syzoj.utils.formatDate(contest.end_time || syzoj.utils.getCurrentDate()) %>">
-            </div>
-            
-            <div class="fields">
-              <div class="inline field">
-                <label class="ui header">公开</label>
-                <div class="ui toggle checkbox">
-                  <input type="checkbox"<% if (contest.is_public) { %> checked<% } %> name="is_public">
-                  <label><span style="visibility: hidden; ">　</span></label>
-                </div>
-              </div>
-              <div class="inline field">
-                <label class="ui header">隐藏统计信息</label>
-                <div class="ui toggle checkbox">
-                  <input checked type="checkbox"<% if (contest.hide_statistics) { %> checked<% } %> name="hide_statistics">
-                  <label><span style="visibility: hidden; ">　</span></label>
-                </div>
-              </div>
-              <div class="inline field">
-                <label class="ui header">隐藏用户名</label>
-                <div class="ui toggle checkbox">
-                  <input type="checkbox"<% if (contest.hide_username) { %> checked<% } %> name="hide_username">
-                  <label><span style="visibility: hidden; ">　</span></label>
-                </div>
-              </div>
-              <div class="inline field">
-                <label class="ui header">比赛期间隐藏标题</label>
-                <div class="ui toggle checkbox">
-                  <input type="checkbox"<% if (contest.hide_title) { %> checked<% } %> name="hide_title">
-                  <label><span style="visibility: hidden; ">　</span></label>
-                </div>
-              </div>
-              <div class="inline field">
-                <label class="ui header">允许测试代码</label>
-                <div class="ui toggle checkbox">
-                  <input type="checkbox"<% if (contest.allow_test_code || !contest.id) { %> checked<% } %> name="allow_test_code">
-                  <label><span style="visibility: hidden; ">　</span></label>
-                </div>
-              </div>
-            </div>
-            
-            
-            <div style="text-align: center; "><button id="submit_button" type="submit" class="ui labeled icon blue button"><i class="ui edit icon"></i>提交</button></div>
+<div class="ui top attached tabular menu">
+  <a class="item active" data-tab="first">比赛信息</a>
+  <a class="item" data-tab="second">题目管理</a>
+</div>
+<div class="ui bottom attached tab segment active" data-tab="first">
+  <div class="padding">
+    <form action="<%= syzoj.utils.makeUrl(['contest', contest.id, 'edit']) %>" method="post">
+      <input type="hidden" name="requestType" value="contestDetails">
+      <div class="ui form">
+        <div class="fields">
+          <div class="fourteen wide field">
+            <label>比赛名称</label>
+            <input type="text" name="title" value="<%= contest.title %>">
           </div>
-        </form>
-        <script>
-          $(function () {
-            $('#search_admins')
-            .dropdown({
-      debug: true,
-      apiSettings: {
-        url: '/api/v2/search/users/{query}',
-        onResponse: function (response) {
-          var a = $('#search_admins').val().map(function (x) { return parseInt(x) });
-          if (response.results) {
-            response.results = response.results.filter(function(x){ return !a.includes(parseInt(x.value))});
-          }
-          return response;
-        },
-        cache: false
-      }
-    });
-  $('#search_problems')
-    .dropdown({
-      debug: true,
-      apiSettings: {
-        url: '/api/v2/search/problems/{query}',
-        onResponse: function (response) {
-          var a = $('#search_problems').val().map(function (x) { return parseInt(x) });
-          if (response.results) {
-            response.results = response.results.filter(function(x) {return !a.includes(parseInt(x.value));});
-          }
-          return response;
-        },
-        cache: false
-      }
-    });
-});
-</script>
-<% if (contest.id) { %>
-<div class="ui basic modal" id="confirmationModal">
-  <div class="ui icon header">
-    <i class="exclamation triangle icon"></i>
-    <p>确认赛制修改</p>
-  </div>
-  <div class="content" style="text-align: center;">
-    <p>你已经更改了赛制类型，这可能会影响比赛的评分和排名。<br>
-    你确定要继续吗？</p>
-  </div>
-  <div class="actions">
-    <div class="ui red basic cancel inverted button">
-      <i class="remove icon"></i>
-      取消
+          <div class="two wide field">
+            <label>赛时提交次数</label>
+            <input type="number" name="max_submissions" value="<%= contest.max_submissions || 0 %>">
+          </div>
+        </div>
+        <div class="field">
+          <label>比赛描述</label>
+          <input type="text" name="subtitle" class="markdown-edit" value="<%= contest.subtitle %>">
+        </div>
+
+        <div class="field">
+          <label>比赛分组（可以用 <code>'|'</code> 分隔同时开放给多组; <code>'all'</code> 表示完全公开; <code>'chk'</code> 表示可被申请）</label>
+          <input type="text" name="group_id" class="markdown-edit" value="<%= contest.group_id %>">
+        </div>
+        <div class="field">
+          <label>比赛管理员</label>
+          <select class="ui fluid search dropdown" multiple="" id="search_admins" name="admins">
+            <% for (let admin of admins) { %>
+            <option value="<%= admin.id %>" selected><%= admin.username %></option>
+            <% } %>
+          </select>
+        </div>
+        <div class="inline fields">
+          <label>赛制 <% if (contest.id) { %>（谨慎修改）<% } %> </label>
+          <div class="field">
+            <div class="ui radio checkbox">
+              <input type="radio" name="type" id="type-noi" value="noi"
+                <% if (contest.type === 'noi' || !contest.id) { %> checked="checked" <% } %>>
+              <label for="type-noi">NOI</label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui radio checkbox">
+              <input type="radio" name="type" id="type-ioi" value="ioi" <% if (contest.type === 'ioi') { %>
+                checked="checked" <% } %>>
+              <label for="type-ioi">IOI</label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui radio checkbox">
+              <input type="radio" name="type" id="type-acm" value="acm" <% if (contest.type === 'acm') { %>
+                checked="checked" <% } %>>
+              <label for="type-acm">ICPC</label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui radio checkbox">
+              <input type="radio" name="type" id="type-pc" value="pc" <% if (contest.type === 'pc') { %>
+                checked="checked" <% } %>>
+              <label for="type-pc">PC</label>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>比赛公告</label>
+          <textarea rows="5" name="information" class="markdown-edit"><%= contest.information %></textarea>
+        </div>
+        <div class="field">
+          <label>开始时间</label>
+          <input type="text" name="start_time"
+            value="<%= syzoj.utils.formatDate(contest.start_time || syzoj.utils.getCurrentDate()) %>">
+        </div>
+        <div class="field">
+          <label>结束时间</label>
+          <input type="text" name="end_time"
+            value="<%= syzoj.utils.formatDate(contest.end_time || syzoj.utils.getCurrentDate()) %>">
+        </div>
+
+        <div class="fields">
+          <div class="inline field">
+            <label class="ui header">公开</label>
+            <div class="ui toggle checkbox">
+              <input type="checkbox" <% if (contest.is_public) { %> checked<% } %> name="is_public">
+              <label><span style="visibility: hidden; ">　</span></label>
+            </div>
+          </div>
+          <div class="inline field">
+            <label class="ui header">隐藏统计信息</label>
+            <div class="ui toggle checkbox">
+              <input checked type="checkbox" <% if (contest.hide_statistics) { %> checked<% } %> name="hide_statistics">
+              <label><span style="visibility: hidden; ">　</span></label>
+            </div>
+          </div>
+          <div class="inline field">
+            <label class="ui header">隐藏用户名</label>
+            <div class="ui toggle checkbox">
+              <input type="checkbox" <% if (contest.hide_username) { %> checked<% } %> name="hide_username">
+              <label><span style="visibility: hidden; ">　</span></label>
+            </div>
+          </div>
+          <div class="inline field">
+            <label class="ui header">比赛期间隐藏标题</label>
+            <div class="ui toggle checkbox">
+              <input type="checkbox" <% if (contest.hide_title) { %> checked<% } %> name="hide_title">
+              <label><span style="visibility: hidden; ">　</span></label>
+            </div>
+          </div>
+          <div class="inline field">
+            <label class="ui header">允许测试代码</label>
+            <div class="ui toggle checkbox">
+              <input type="checkbox" <% if (contest.allow_test_code || !contest.id) { %> checked<% } %>
+                name="allow_test_code">
+              <label><span style="visibility: hidden; ">　</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: center; "><button type="submit" class="ui labeled icon blue button"><i
+              class="ui edit icon"></i>提交</button></div>
+      </div>
+    </form>
+    <script>
+      $(function () {
+        $('#search_admins')
+          .dropdown({
+            debug: true,
+            apiSettings: {
+              url: '/api/v2/search/users/{query}',
+              onResponse: function (response) {
+                var a = $('#search_admins').val().map(function (x) { return parseInt(x) });
+                if (response.results) {
+                  response.results = response.results.filter(function (x) { return !a.includes(parseInt(x.value)) });
+                }
+                return response;
+              },
+              cache: false
+            }
+          });
+      });
+    </script>
+    <% if (contest.id) { %>
+    <div class="ui basic modal" id="confirmationModal">
+      <div class="ui icon header">
+        <i class="exclamation triangle icon"></i>
+        <p>确认赛制修改</p>
+      </div>
+      <div class="content" style="text-align: center;">
+        <p>你已经更改了赛制类型，这可能会影响比赛的评分和排名。<br>
+          你确定要继续吗？</p>
+      </div>
+      <div class="actions">
+        <div class="ui red basic cancel inverted button">
+          <i class="remove icon"></i>
+          取消
+        </div>
+        <div class="ui green ok inverted button" id="confirmButton">
+          <i class="checkmark icon"></i>
+          确认
+        </div>
+      </div>
     </div>
-    <div class="ui green ok inverted button" id="confirmButton">
-      <i class="checkmark icon"></i>
-      确认
-    </div>
+
+    <script>
+      $(document).ready(function () {
+        const typeInputs = $('input[name="type"]');
+        const originalType = typeInputs.filter(':checked').val();
+        const form = $('form');
+        const modal = $('#confirmationModal');
+
+        form.submit(function (event) {
+          const selectedType = typeInputs.filter(':checked').val();
+
+          if (originalType !== selectedType) {
+            event.preventDefault();
+            modal.modal({
+              closable: false,
+              onDeny: function () {
+                // 用户点击“取消”
+              },
+              onApprove: function () {
+                // 用户点击“确认”，再次提交表单
+                form.unbind('submit').submit();
+              }
+            }).modal('show');
+          }
+        });
+
+        $('#cancelButton').click(function () {
+          modal.modal('hide');
+        });
+      });
+    </script>
+    <% } else { %>
+    <script>
+      $(document).ready(function () {
+        $('input[type=radio][name=type]').change(function () {
+          if (!$('#type-noi').is(':checked')) {
+            $('input[name="allow_test_code"]').prop('checked', false);
+          }
+        });
+      });
+    </script>
+    <% } %>
   </div>
 </div>
 
-<script>
-  $(document).ready(function () {
-    const typeInputs = $('input[name="type"]');
-    const originalType = typeInputs.filter(':checked').val();
-    const form = $('form');
-    const modal = $('#confirmationModal');
-    
-    form.submit(function (event) {
-      const selectedType = typeInputs.filter(':checked').val();
-      
-      if (originalType !== selectedType) {
-        event.preventDefault();
-        modal.modal({
-          closable: false,
-          onDeny: function () {
-            // 用户点击“取消”
-          },
-          onApprove: function () {
-            // 用户点击“确认”，再次提交表单
-            form.unbind('submit').submit();
-          }
-        }).modal('show');
+<div class="ui bottom attached tab segment" data-tab="second">
+  <div class="ui container">
+    <div id="error-message-container" style="display: none;">
+      <div class="ui error message">
+        <p>该题目已经存在</p>
+      </div>
+    </div>
+    <!-- 搜索框 -->
+    <div class="ui search" style="padding: 10px; ">
+      <div class="ui icon input" style="width: 100%; ">
+        <input class="prompt" type="text" placeholder="添加题目...">
+        <i class="search icon"></i>
+      </div>
+      <div class="results"></div>
+    </div>
+
+    <div class="ui form">
+      <div class="ui big middle aligned list selection relaxed ui-sortable" style="padding: 15px;">
+        <% problems.forEach(function(problem) { %>
+        <div class="item ui-sortable-handle" data-id="<%= problem.id %>">
+          <div class="right floated content">
+            <div class="ui mini input transparent">
+              <input type="number" placeholder="输入权重..."
+                value="<%= contest?.ranklist?.ranking_params[problem.id] || '' %>">
+            </div>
+            <div class="ui icon basic button">
+              <i class="trash red icon"></i>
+            </div>
+          </div>
+          <div class="content" style="padding:5px">
+            <div class="header">#<%= problem.id %>. <%= problem.title %></div>
+          </div>
+        </div>
+        <% }); %>
+      </div>
+
+      <div style="text-align: center; "><button id="problems_submit_button" type="submit"
+          class="ui labeled icon blue button"><i class="ui edit icon"></i>提交</button></div>
+    </div>
+  </div>
+  <form id="problem-form" method="post" action="<%= syzoj.utils.makeUrl(['contest', contest.id, 'edit']) %>">
+    <input type="hidden" name="ranking_params" id="ranking-params">
+    <input type="hidden" name="problems" id="problems">
+    <input type="hidden" name="requestType" value="problems">
+  </form>
+
+  <script>
+    $(document).ready(function () {
+      $('.menu .item').tab();
+
+      var errorTimeout;
+
+      function showError() {
+        $('#error-message-container').show();
+        clearTimeout(errorTimeout);
+        errorTimeout = setTimeout(function () {
+          $('#error-message-container').hide();
+        }, 3000);
       }
+
+      // 初始化题目搜索功能
+      $('.ui.search').search({
+        debug: true,
+        apiSettings: {
+          url: '/api/v2/search/problems/{query}', // 你的题目搜索 API
+          cache: false
+        }, templates: {
+          standard: function (response) {
+            var html = '';
+            $.each(response.results, function (index, item) {
+              html += '<div class="result" data-id="' + item.id + '">' +
+                '<div class="content">' +
+                '<div class="title">' + item.name + '</div>' +
+                '</div>' +
+                '</div>';
+            });
+            return html;
+          }
+        },
+        fields: {
+          title: 'name'
+        },
+        onSelect: function (result, response) {
+          var existingItem = $('.ui.list .item[data-id="' + result.value + '"]');
+          if (existingItem.length > 0) {
+            showError();
+          } else {
+            $('.ui.list').append(
+              '<div class="item" data-id="' + result.value + '">' +
+              '<div class="right floated content">' +
+              '<div class="ui mini input transparent">' +
+              '<input type="number" placeholder="输入权重...">' +
+              '</div>' +
+              '<div class="ui icon basic button"> <i class="trash red icon"> </i></div>' +
+              '</div>' +
+              '<div class="content" style="padding:5px">' +
+              '<div class="header">' + result.name + '</div>' +
+              '</div>' +
+              '</div>'
+            );
+            $('.ui.list').sortable('refresh');
+          }
+        }
+      });
+
+      // 初始化拖放功能
+      $('.ui.list').sortable({
+        start: function (event, ui) {
+          ui.placeholder.height(ui.item.height());
+        }
+      });
+
+
+      // 初始化删除按钮的点击事件
+      $('.ui.list').on('click', '.icon.button', function () {
+        $(this).closest('.item').remove();
+      });
+
+      // 清空搜索
+      $('.ui.search').on('click', '.result', function () {
+        $('.ui.search .prompt').val('');
+      });
+
     });
 
-    $('#cancelButton').click(function () {
-      modal.modal('hide');
-    });
-  });
-</script>
-<% } else { %>
-<script>
-$(document).ready(function() {
-  $('input[type=radio][name=type]').change(function() {
-    if(!$('#type-noi').is(':checked')) {
-      $('input[name="allow_test_code"]').prop('checked', false);
-    }
-  });
-});
-</script>
-<% } %>
+    $('#problems_submit_button').click(function () {
+      var rankingParams = {};
+      var problems = [];
 
-<% include footer %>
+      // 遍历列表项，收集题目ID和权重
+      $('.ui.list .item').each(function () {
+        var id = $(this).data('id');
+        var weight = $(this).find('input[type="number"]').val();
+
+        if (weight !== '') {
+          rankingParams[id] = parseInt(weight, 10);
+        }
+        problems.push(id);
+      });
+
+      // 设置表单字段的值
+      $('#ranking-params').val(JSON.stringify(rankingParams));
+      $('#problems').val(problems.join('|'));
+
+      // 提交表单
+      $('#problem-form').submit();
+    });
+
+  </script>
+
+
+  <% include footer %>

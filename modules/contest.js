@@ -354,7 +354,6 @@ app.get('/contest/:id/edit', async (req, res) => {
 
 app.post('/contest/:id/edit', async (req, res) => {
   try {
-
     let contest_id = parseInt(req.params.id);
     let contest = await Contest.findById(contest_id);
     let ranklist = null;
@@ -368,50 +367,60 @@ app.post('/contest/:id/edit', async (req, res) => {
       newContest = true;
     } else {
       // if contest exists, both system administrators and contest administrators can edit it.
-      if (!await contest.isSupervisior(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
-      
+      if (!await contest.isSupervisior(res.locals.user)) {
+        throw new ErrorMessage('您没有权限进行此操作。');
+      }
       await contest.loadRelationships();
       ranklist = contest.ranklist;
     }
 
-    try {
-      ranklist.ranking_params = JSON.parse(req.body.ranking_params);
-    } catch (e) {
-      ranklist.ranking_params = {};
-    }
-    await ranklist.save();
-    contest.ranklist_id = ranklist.id;
+    switch (req.body.requestType) {
+      case 'problems':
+        try {
+          ranklist.ranking_params = JSON.parse(req.body.ranking_params);
+        } catch (e) {
+          ranklist.ranking_params = {};
+        }
+        
+        await ranklist.save();
+        contest.ranklist_id = ranklist.id;
+        contest.problems = req.body.problems;
 
-    if (!req.body.title.trim()) throw new ErrorMessage('比赛名不能为空。');
-    contest.title = req.body.title;
-    if (!['noi', 'ioi', 'acm', 'pc'].includes(req.body.type)) throw new ErrorMessage('无效的赛制。');
-    contest.type = req.body.type;
-    contest.subtitle = req.body.subtitle;
-    if (!Array.isArray(req.body.problems)) req.body.problems = [req.body.problems];
-    if (!Array.isArray(req.body.admins)) req.body.admins = [req.body.admins];
-    contest.problems = req.body.problems.join('|');
-    contest.admins = req.body.admins.join('|');
-    contest.information = req.body.information;
-    contest.start_time = syzoj.utils.parseDate(req.body.start_time);
-    contest.end_time = syzoj.utils.parseDate(req.body.end_time);
-    contest.is_public = req.body.is_public === 'on';
-    contest.hide_statistics = req.body.hide_statistics === 'on';
-    contest.hide_username = req.body.hide_username === 'on';
-    contest.hide_title = req.body.hide_title === 'on';
-    contest.allow_test_code = req.body.allow_test_code === 'on'
+        if (newContest) {
+          let pids = await contest.getProblems()
+          await pids.mapAsync(async id => {
+            let p = await Problem.findById(id)
+            p.is_public = false
+            p.publicizer_id = res.locals.user.id;
+            p.publicize_time = new Date();
+            await p.save();
+          });
+        }
+        break;
 
-    contest.max_submissions = parseInt(req.body.max_submissions);
-    contest.group_id = req.body.group_id;
+      case 'contestDetails':
+        if (!req.body.title.trim()) throw new ErrorMessage('比赛名不能为空。');
+        contest.title = req.body.title;
+        if (!['noi', 'ioi', 'acm', 'pc'].includes(req.body.type)) throw new ErrorMessage('无效的赛制。');
+        contest.type = req.body.type;
+        contest.subtitle = req.body.subtitle;
+        if (!Array.isArray(req.body.admins)) req.body.admins = [req.body.admins];
+        contest.admins = req.body.admins.join('|');
+        contest.information = req.body.information;
+        contest.start_time = syzoj.utils.parseDate(req.body.start_time);
+        contest.end_time = syzoj.utils.parseDate(req.body.end_time);
+        contest.is_public = req.body.is_public === 'on';
+        contest.hide_statistics = req.body.hide_statistics === 'on';
+        contest.hide_username = req.body.hide_username === 'on';
+        contest.hide_title = req.body.hide_title === 'on';
+        contest.allow_test_code = req.body.allow_test_code === 'on';
 
-    if (newContest) {
-      let pids = await contest.getProblems()
-      await pids.mapAsync(async id => {
-        let p = await Problem.findById(id)
-        p.is_public = false
-        p.publicizer_id = res.locals.user.id;
-        p.publicize_time = new Date();
-        await p.save();
-      });
+        contest.max_submissions = parseInt(req.body.max_submissions);
+        contest.group_id = req.body.group_id;
+        break;
+
+      default:
+        throw new ErrorMessage('无效的请求类型。');
     }
 
     await contest.save();
@@ -657,6 +666,39 @@ app.get('/contest/:id/repeat', async (req, res) => {
       };
     });
 
+    let collectorsNotPlayers = await ContestCollection.find({ contest_id: contest.id })
+      .map(async collection => {
+        let user = await User.findById(collection.user_id);
+        // 检查用户是否是比赛选手
+        let isPlayer = await ContestPlayer.findOne({
+          contest_id: contest.id,
+          user_id: user.id
+        });
+        if (isPlayer) return null; // 如果是比赛选手，则不加入列表
+
+        let number = 0;
+        let prob = await problems.mapAsync(async problem => {
+          let buti_judge = await problem.getJudgeState(user, true);
+          if (buti_judge && buti_judge.status == 'Accepted') ++number;
+          return {
+            buti_judge: buti_judge
+          };
+        });
+
+        return {
+          number: number,
+          user: user,
+          problems: prob
+        };
+      });
+
+    // 过滤掉空值（即实际上是比赛选手的用户）
+    collectorsNotPlayers = collectorsNotPlayers.filter(entry => entry != null);
+
+    // 将这些用户的信息加入到 repeatlist 中
+    repeatlist = repeatlist.concat(collectorsNotPlayers);
+
+
     for (let i = 0; i < problems.length; ++i) problems[i].buti_num = 0;
     for (let it of repeatlist) {
       for (let i = 0; i < problems.length; ++i) {
@@ -741,6 +783,39 @@ app.get('/contest/:id/repeat/:prefix', async (req, res) => {
         problems: prob
       };
     });
+
+    let collectorsNotPlayers = await ContestCollection.find({ contest_id: contest.id })
+      .map(async collection => {
+        let user = await User.findById(collection.user_id);
+        // 检查用户是否是比赛选手
+        let isPlayer = await ContestPlayer.findOne({
+          contest_id: contest.id,
+          user_id: user.id
+        });
+        if (isPlayer) return null; // 如果是比赛选手，则不加入列表
+
+        let number = 0;
+        let prob = await problems.mapAsync(async problem => {
+          let buti_judge = await problem.getJudgeState(user, true);
+          if (buti_judge && buti_judge.status == 'Accepted') ++number;
+          return {
+            buti_judge: buti_judge
+          };
+        });
+
+        return {
+          number: number,
+          user: user,
+          problems: prob
+        };
+      });
+
+    // 过滤掉空值（即实际上是比赛选手的用户）
+    collectorsNotPlayers = collectorsNotPlayers.filter(entry => entry != null);
+
+    // 将这些用户的信息加入到 repeatlist 中
+    repeatlist = repeatlist.concat(collectorsNotPlayers);
+
 
     repeatlist = repeatlist.filter(item => item.user.nickname.startsWith(req.params.prefix));
 

@@ -1364,9 +1364,10 @@ app.post('/problem/:id/code/test', app.multer.any(), async (req, res) => {
   try {
     if(!res.locals.user) throw '您没有权限进行此操作。';
     let problem = await Problem.findById(parseInt(req.params.id))
-    if(!problem) throw "没有权限"
+    if(!problem) throw "无此题目。"
 
     if(!syzoj.submissionIntervalCheck(res.locals.user.id))  throw '提交过于频繁'
+    if(!(req.files && req.files[0] && req.files[0].path)) throw "没有上传输入文件";
 
     let time_limit =  problem.time_limit || 5000
     let memory_limit = problem.memory_limit || 1024
@@ -1418,7 +1419,7 @@ app.post('/problem/:id/code/test', app.multer.any(), async (req, res) => {
     res.send({not_allowed_error: e})
   } finally {
     fs.remove(tmp_dir, () => {})
-    fs.rm(req.files[0].path, () => {})
+    if (req.files && req.files[0] && req.files[0].path) fs.rm(req.files[0].path, () => {});
   }
 });
 
