@@ -417,6 +417,9 @@ app.post('/contest/:id/edit', async (req, res) => {
 
         contest.max_submissions = parseInt(req.body.max_submissions);
         contest.group_id = req.body.group_id;
+
+        await ranklist.save();
+        contest.ranklist_id = ranklist.id;
         break;
 
       default:
