@@ -14,7 +14,7 @@
             <tr>
                 <th>#</th>
                 <% if (local_is_admin || !contest.hide_username) { %><th>用户名</th><% } %>
-                <% if (local_is_admin || key) { %><th>nick</th><% } %>
+                <% if (local_is_admin || key || contest.show_nick) { %><th>nick</th><% } %>
                 <% if (contest.type === 'acm') { %>
                   <th>总分</th>
                   <th>罚时</th>
@@ -89,7 +89,7 @@
                   </div>
                 </td>
                 <% if (local_is_admin || !contest.hide_username) { %><td><a href="<%=  local_is_admin ?  syzoj.utils.makeUrl(['user', item.user.id]) : "javascript:;" %>"><%= item.user.username %></a><% if (item.user.nameplate) { %><%- item.user.nameplate %><% } %></td><% } %>
-                <% if (local_is_admin || key) { %><td><%= item.user.nickname %></td><% } %>
+                <% if (local_is_admin || key || contest.show_nick) { %><td><%= item.user.nickname %></td><% } %>
                 <% if (contest.type === 'acm') { %>
                   <td>
                     <span class="score score_<%= parseInt((item.player.score / ranklist[0].player.score * 10) || 0) %>">
