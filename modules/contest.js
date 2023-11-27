@@ -1060,7 +1060,7 @@ app.get('/contest/:id/ranklist/:prefix', async (req, res) => {
 function getDisplayConfig(contest) {
   return {
     showScore: contest.allowedSeeingScore(),
-    showUsage: false,
+    showUsage: contest.allowedSeeingUsage(),
     showCode: false,
     showResult: contest.allowedSeeingResult(),
     showOthers: contest.allowedSeeingOthers(),
