@@ -1512,7 +1512,7 @@ app.get('/contest/:id/ball', async (req, res) => {
     }
     // 新增：获取排序参数
     let sortBy = req.query.sort || 'time'; // 默认按时间排序
-    let order = req.query.order || 'asc'; // 默认升序
+    let order = req.query.order || 'desc'; // 默认升序
     console.log(order);
 
     // 定义排序函数
