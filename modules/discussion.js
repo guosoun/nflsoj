@@ -3,6 +3,16 @@ let Article = syzoj.model('article');
 let ArticleComment = syzoj.model('article-comment');
 let User = syzoj.model('user');
 
+app.use((req, res, next) => {
+  if ((req.path.startsWith('/article') || req.path.startsWith('/discussion')) && !syzoj.config.article_enabled) {
+    res.render('error', {
+      err: '该功能未启用。'
+    });
+  } else {
+    next();
+  }
+});
+
 app.get('/discussion/:type?', async (req, res) => {
   try {
 

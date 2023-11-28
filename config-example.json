@@ -135,5 +135,6 @@
   "allow_tag_edit": true,
   "enable_spider": true,
   "get_ip_location": true,
-  "auto_logout_time": 240
+  "auto_logout_time": 240,
+  "article_enabled": true
 }
