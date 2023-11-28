@@ -4,17 +4,21 @@
     <table class="ui very basic center aligned table">
         <thead>
         <tr>
-            <th> 用户名 </th>k
-            <th> 昵称 </th>
-            <th> 题号 </th>
+            <th> <%-createSortableTitle('time', '耗时', true) %> </th>
+            <th> 用户名 </th>
+            <th> nick </th>
+            <th> <%-createSortableTitle('problem', '题目', true) %> </th>
             <th> 机房 </th>
             <th> 座位号 </th>
-            <th> 操作 </th>
+            <th>  </th>
         </tr>
         </thead>
         <tbody>
             <% for (let item of balls) {%>
                 <tr id = "<%= item.submission.id %>">
+                    <td>
+                        <%= item.time %>
+                    </td>
                     <td>
                         <%= item.user.username%>
                     </td>
@@ -31,7 +35,12 @@
                         <%= item.position %>
                     </td>
                     <td>
-                        <button onclick="done(<%= item.submission.id %>)" class="ui button primary">送球</button>
+                        <div class="ui vertical animated button small basic " tabindex="0" onclick="done(<%= item.submission.id %>)">
+                            <div class="visible content">
+                                <i class="circle notch icon "></i>
+                              </div>
+                            <div class="hidden content">送气球</div>
+                        </div>
                     </td>
                 </tr>
 

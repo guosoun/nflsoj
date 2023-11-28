@@ -1493,7 +1493,7 @@ app.get('/contest/:id/ball', async (req, res) => {
       let s = records[key]
       if(!s.ball) {
         s.user = await User.findById(s.submission.user_id)
-
+        s.time = s.submission.submit_time - contest.start_time;
         for(let i = 0; i < problems.length; ++i) {
           if(problems[i] === s.submission.problem_id) {
             s.problem_id = i
@@ -1510,13 +1510,40 @@ app.get('/contest/:id/ball', async (req, res) => {
         balls.push(s)
       }
     }
-    balls.sort((a, b) => {
-      return a.room_id - b.room_id
-    })
+    // 新增：获取排序参数
+    let sortBy = req.query.sort || 'time'; // 默认按时间排序
+    let order = req.query.order || 'asc'; // 默认升序
+    console.log(order);
 
+    // 定义排序函数
+    const sortFunctions = {
+      'time': (a, b) => (order === 'asc' ? a.time - b.time : b.time - a.time),
+      'problem': (a, b) => (order === 'asc' ? a.problem_id - b.problem_id : b.problem_id - a.problem_id)
+    };
+
+    // 应用排序
+    if (sortFunctions[sortBy] && ['asc', 'desc'].includes(order)) {
+      balls.sort(sortFunctions[sortBy]);
+    } else {
+      throw new ErrorMessage('错误的排序参数。');
+    }
+
+    balls.forEach(item => {
+      let seconds = item.time;
+      let hours = Math.floor(seconds / 3600).toString().padStart(2, '0');
+      let minutes = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+      let secondsRemaining = (seconds % 60).toString().padStart(2, '0');
+
+      item.time = `${hours}:${minutes}:${secondsRemaining}`;
+    });
+  
+      
+  
     res.render("contest_balls", {
       balls,
-      contest
+      contest,
+      curSort: sortBy,
+      curOrder: order === 'asc'
     })
 
   } catch (e) {
