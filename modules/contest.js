@@ -1466,7 +1466,7 @@ app.get('/contest/:id/ball', async (req, res) => {
     let id = parseInt(req.params.id);
     let contest = await Contest.findById(id);
     if (!contest) throw new ErrorMessage('无此比赛。');
-    if (!await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!await contest.isSupervisior(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
 
     let query = JudgeState.createQueryBuilder();
     query.where("type_info = :type_info", { type_info: id })
@@ -1562,7 +1562,7 @@ app.post('/contest/:id/ball/:submission_id', async (req, res) => {
     let id = parseInt(req.params.id);
     let contest = await Contest.findById(id);
     if (!contest) throw new ErrorMessage('无此比赛。');
-    if (!await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!await contest.isSupervisior(res.locals.user)) throw new ErrorMessage('您没有权限进行此操作。');
 
     let sid = parseInt(req.params.submission_id)
     let judge_state = await JudgeState.findById(sid)
