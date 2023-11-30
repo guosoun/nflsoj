@@ -47,11 +47,14 @@ export default class ContestRanklist extends Model {
           let judge_state = await JudgeState.findById(player.score_details[i].judge_id);
           if (!judge_state) continue;
 
-          player.latest = Math.max(player.latest, judge_state.submit_time);
+          
 
           if (player.score_details[i].score != null) {
             let multiplier = this.ranking_params[i] || 1.0;
             player.score_details[i].weighted_score = Math.round(player.score_details[i].score * multiplier);
+            
+            if (player.score + player.score_details[i].weighted_score != player.score)
+              player.latest = Math.max(player.latest, judge_state.submit_time);
             player.score += player.score_details[i].weighted_score;
           }
         }
