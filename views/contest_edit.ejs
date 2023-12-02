@@ -123,8 +123,7 @@
           <div class="inline field">
             <label class="ui header">显示姓名</label>
             <div class="ui toggle checkbox">
-              <input type="checkbox" <% if (contest.show_nick) { %> checked<% } %>
-                name="show_nick">
+              <input type="checkbox" <% if (contest.show_nick) { %> checked<% } %> name="show_nick">
               <label><span style="visibility: hidden; ">　</span></label>
             </div>
           </div>
@@ -256,8 +255,12 @@
         <% }); %>
       </div>
 
-      <div style="text-align: center; "><button id="problems_submit_button" type="submit"
-          class="ui labeled icon blue button"><i class="ui edit icon"></i>提交</button></div>
+      <div style="text-align: center; " >
+        <button id="problems_submit_button" type="submit" class="ui labeled icon blue button"><i
+            class="ui edit icon"></i>提交</button>
+        <button id="dis_publishAll" class="ui button labeled icon "> <i class="ban icon"></i>取消公开所有题目</button>
+      </div>
+
     </div>
   </div>
   <form id="problem-form" method="post" action="<%= syzoj.utils.makeUrl(['contest', contest.id, 'edit']) %>">
@@ -368,8 +371,35 @@
       $('#problem-form').submit();
     });
 
+    $('#dis_publishAll').click(function () {
+      var $button = $(this); // 获取按钮的jQuery对象
+      if ($button.hasClass('loading')) {
+        // 如果按钮已经处于加载状态，则不执行任何操作
+        return;
+      }
+      $button.addClass('loading'); // 在操作开始时添加loading样式
+      $('#problems_submit_button').addClass('disabled');
+
+      var publishPromises = []; // 用于存储所有的异步请求
+
+      // 遍历所有题目
+      $('.ui.list .item').each(function () {
+        var problemId = $(this).data('id');
+
+        // 创建异步请求并存储到数组中
+        var publishPromise = $.post('/problem/' + problemId + '/dis_public');
+        publishPromises.push(publishPromise);
+      });
+
+      // 当所有请求都完成后
+      $.when.apply($, publishPromises).then(function () {
+        $button.removeClass('loading'); // 移除loading样式
+        $('#problems_submit_button').removeClass('disabled');
+      });
+    });
+
   </script>
   <% } %>
 </div>
 
-  <% include footer %>
+<% include footer %>

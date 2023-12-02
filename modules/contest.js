@@ -376,6 +376,9 @@ app.post('/contest/:id/edit', async (req, res) => {
 
     switch (req.body.requestType) {
       case 'problems':
+        if (newContest) { 
+          throw new ErrorMessage('不能为新建的创建的比赛设定题目。');
+        }
         try {
           ranklist.ranking_params = JSON.parse(req.body.ranking_params);
         } catch (e) {
@@ -385,17 +388,6 @@ app.post('/contest/:id/edit', async (req, res) => {
         await ranklist.save();
         contest.ranklist_id = ranklist.id;
         contest.problems = req.body.problems;
-
-        if (newContest) {
-          let pids = await contest.getProblems()
-          await pids.mapAsync(async id => {
-            let p = await Problem.findById(id)
-            p.is_public = false
-            p.publicizer_id = res.locals.user.id;
-            p.publicize_time = new Date();
-            await p.save();
-          });
-        }
         break;
 
       case 'contestDetails':
