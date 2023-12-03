@@ -1446,3 +1446,43 @@ app.get('/problem/:id/summaries',  async (req, res) => {
     res.send({error: e})
   }
 });
+
+app.post('/problem/change_creator', async (req, res) => {
+  try {
+    // 验证用户登录和管理员权限
+    if(!res.locals.user){
+      throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});
+    }
+    if (!res.locals.user.is_admin) {
+      throw new ErrorMessage('您没有权限进行此操作。');
+    }
+
+    // 获取用户 ID 和题目 ID 列表
+    let user_id = parseInt(req.body.user_id);
+    let problem_ids = req.body.problem_ids; // 假设这是一个数组
+
+    // 验证用户存在
+    let user = await User.findById(user_id);
+    if (!user) {
+      throw new ErrorMessage('无此用户。');
+    }
+
+    // 循环处理每个题目
+    for (let id of problem_ids) {
+      let problem = await Problem.findById(parseInt(id));
+      if (!problem) continue;
+
+      // 更改题目的创建者
+      problem.user_id = user_id;
+      await problem.save();
+    }
+
+    // 重定向或返回成功响应
+    res.redirect(syzoj.utils.makeUrl(['admin', 'change_problem_creator']));
+  } catch (e) {
+    syzoj.log(e);
+    res.render('error', {
+      err: e
+    });
+  }
+});

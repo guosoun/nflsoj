@@ -731,3 +731,16 @@ app.get('/admin/problem_forbid', async (req, res) => {
     syzoj.log(e);
   }
 });
+
+app.get('/admin/change_problem_creator', async (req, res) => {
+  try {
+    if (!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+
+    res.render('change_problem_creator', {})
+  } catch (e) {
+    syzoj.log(e);
+    res.render('error', {
+      err: e
+    })
+  }
+});

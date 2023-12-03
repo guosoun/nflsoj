@@ -1,0 +1,80 @@
+<%
+this.adminPage = 'change_problem_creator';
+%>
+<% include admin_header %>
+
+<body>
+  <div class="ui form">
+    <div class="field">
+      <label>选择题目</label>
+      <div class="ui search multiple selection dropdown" id="problemSearch">
+        <input type="hidden" name="problem_ids">
+        <i class="dropdown icon"></i>
+        <div class="default text">搜索题目</div>
+        <div class="menu"></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>选择用户</label>
+      <div class="ui search selection dropdown" id="userSearch">
+        <input type="hidden" name="user_id">
+        <i class="dropdown icon"></i>
+        <div class="default text">搜索用户</div>
+        <div class="menu"></div>
+      </div>
+    </div>
+    <div style="text-align: center; ">
+      <button class="ui blue labeled icon button" id="submitBtn"><i class="ui edit icon"></i>提交</button>
+    </div>
+  </div>
+  <form id="hiddenForm" method="post" action="/problem/change_creator" style="display: none;">
+    <input type="hidden" name="user_id" id="hiddenUserId">
+    <input type="hidden" name="problem_ids" id="hiddenProblemIds">
+  </form>
+
+  <script>        $(function () {
+      $('#userSearch').dropdown({
+        apiSettings: {
+          url: '/api/v2/search/users/{query}',
+          cache: false
+        },
+        fields: {
+          remoteValues: 'results', // 根据 API 返回的结构调整
+          name: 'name', // 显示在搜索框中的字段名
+          value: 'value' // 用户 ID 的字段名
+        },
+        minCharacters: 1
+      });
+
+      $('#problemSearch').dropdown({
+        apiSettings: {
+          url: '/api/v2/search/problems/{query}',
+          cache: false
+        },
+        fields: {
+          remoteValues: 'results', // 根据 API 返回的结构调整
+          name: 'name', // 显示在搜索框中的字段名
+          value: 'value' // 题目 ID 的字段名
+        },
+        minCharacters: 1
+      });
+
+      $('#submitBtn').click(function (event) {
+        event.preventDefault(); // 防止表单默认提交行为
+
+        var userId = $('#userSearch').dropdown('get value');
+        var problemIds = $('#problemSearch').dropdown('get value').split(',');
+
+        // 设置隐藏表单的值
+        $('#hiddenUserId').val(userId);
+        $('#hiddenProblemIds').val(JSON.stringify(problemIds));
+
+        // 提交隐藏表单
+        $('#hiddenForm').submit();
+      });
+    })
+  </script>
+</body>
+
+
+<% include admin_footer %>
