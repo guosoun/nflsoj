@@ -1468,6 +1468,7 @@ app.post('/problem/change_creator', async (req, res) => {
     }
 
     // 循环处理每个题目
+    console.log(req.body.problem_ids, problem_ids);
     for (let id of problem_ids) {
       let problem = await Problem.findById(parseInt(id));
       if (!problem) continue;
