@@ -1471,6 +1471,7 @@ app.post('/problem/change_creator', async (req, res) => {
     for (let id of problem_ids) {
       let problem = await Problem.findById(parseInt(id));
       if (!problem) continue;
+      console.log(id, problem.id);
 
       // 更改题目的创建者
       problem.user_id = user_id;
