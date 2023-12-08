@@ -1459,7 +1459,7 @@ app.post('/problem/change_creator', async (req, res) => {
 
     // 获取用户 ID 和题目 ID 列表
     let user_id = parseInt(req.body.user_id);
-    let problem_ids = req.body.problem_ids; // 假设这是一个数组
+    let problem_ids = JSON.parse(req.body.problem_ids); // 假设这是一个数组
 
     // 验证用户存在
     let user = await User.findById(user_id);
@@ -1468,16 +1468,14 @@ app.post('/problem/change_creator', async (req, res) => {
     }
 
     // 循环处理每个题目
-    console.log(req.body.problem_ids, problem_ids);
-    for (let id of problem_ids) {
+    await Promise.all(problem_ids.map(async (id) => {
       let problem = await Problem.findById(parseInt(id));
-      if (!problem) continue;
-      console.log(id, problem.id);
-
+      if (!problem) return;
+    
       // 更改题目的创建者
       problem.user_id = user_id;
       await problem.save();
-    }
+    }));
 
     // 重定向或返回成功响应
     res.redirect(syzoj.utils.makeUrl(['admin', 'change_problem_creator']));
