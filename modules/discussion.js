@@ -171,6 +171,51 @@ app.get('/article/:id', async (req, res) => {
   }
 });
 
+app.get('/article/pdf/:ids', async (req, res) => {
+  try {
+    if(!res.locals.user){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
+    if(!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+    const ids = req.params.ids.split(',').map(id => parseInt(id.trim(), 10));
+    let combinedContent = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <title>Problems</title>
+        <link href="/cdnjs/semantic-ui/2.4.1/semantic.min.css" rel="stylesheet">
+      </head>
+      <body>
+    `;
+    let index = 0;
+
+    for (const id of ids) {
+      let article = await Article.findById(id);
+      if (!article) {
+        continue; // Skip non-existing problems
+      }
+
+      // Generate HTML content as before
+      article.content = await syzoj.utils.markdown(article.content);
+      alpha = number => {
+        if (number && parseInt(number) == number && parseInt(number) > 0) return String.fromCharCode('A'.charCodeAt(0) + parseInt(number) - 1);
+      };
+      let htmlContent = `
+        <div style="break-after: page;">
+          <h1>${alpha(index + 1)} 题解</h1>
+          ${article.content}
+        </div>
+      `;
+      combinedContent += htmlContent;
+      index++;
+    }
+    res.send(combinedContent);
+  } catch (e) {
+    syzoj.log(e);
+    res.render('error', {
+      err: e
+    });
+  }
+});
+
 app.get('/article/:id/edit', async (req, res) => {
   try {
     if (!res.locals.user) throw new ErrorMessage('请登录后继续。', { '登录': syzoj.utils.makeUrl(['login'], { 'url': req.originalUrl }) });
