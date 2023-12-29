@@ -21,6 +21,7 @@
                     </a>
                   </th>
                 <% } %>
+                <th>数量</th>
             </tr>
             </thead>
             <tbody>
@@ -28,18 +29,20 @@
               <tr>
                   <% if (local_is_admin || !contest.hide_username) { %><td><a href="<%= syzoj.utils.makeUrl(['user', item.user.id]) %>"><%= item.user.username %></a><% if (item.user.nameplate) { %><%- item.user.nameplate %><% } %></td><% } %>
                   <% if (local_is_admin || key) { %><td><%= item.user.nickname %></td><% } %>
+                  <% let count = 0;%>
                   <% for (let problem of item.problems) { %>
                     <td>
                         <% if (problem.buti_judge) { %>
+                          <% if (problem.buti_judge.status === 'Accepted') count += 1; %>
                           <a href="javascript:;" onclick="__showCode(event, '<%= syzoj.utils.makeUrl(['submission', problem.buti_judge.id]) %>', '<%= item.user.username %>')">
                             <span class="status <%= problem.buti_judge.status.toLowerCase().split(' ').join('_') %>">
                               <i class="<%= icon[problem.buti_judge.status] || 'remove' %> icon"></i>
                             </span>
                           </a>
                         <% } %>
-
                     </td>
                   <% } %>
+                  <td> <%= count %> </td>
               </tr>
             <% } %>
             </tbody>
