@@ -255,10 +255,14 @@
         <% }); %>
       </div>
 
-      <div style="text-align: center; " >
+      <div style="text-align: center; ">
+        <button id="dis_publishAll" class="ui button labeled icon "> <i class="ban icon"></i>取消公开所有题目</button>
+        <button id="fetch-scores-button" class="ui button labeled icon">
+          <i class="thumbtack icon"></i>获取分值
+        </button>
+
         <button id="problems_submit_button" type="submit" class="ui labeled icon blue button"><i
             class="ui edit icon"></i>提交</button>
-        <button id="dis_publishAll" class="ui button labeled icon "> <i class="ban icon"></i>取消公开所有题目</button>
       </div>
 
     </div>
@@ -397,6 +401,55 @@
         $('#problems_submit_button').removeClass('disabled');
       });
     });
+    $('#fetch-scores-button').on('click', function () {
+      fillScoresForAllProblems();
+    });
+
+    async function fetchProblemData(problemId) {
+      try {
+        const response = await fetch(`/problem/${problemId}/export`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        return getScore(data);
+      } catch (error) {
+        console.error(`Fetching problem data failed for ID ${problemId}:`, error);
+        return null; // 返回 null 表示出现错误
+      }
+    }
+
+    function getScore(obj) {
+      if (obj && obj.obj && obj.obj.tags) {
+        for (let tag of obj.obj.tags) {
+          if (tag.startsWith("*")) {
+            return tag.substring(1) / 100;
+          }
+        }
+      }
+      return null; // 返回 null 表示没有找到分值
+    }
+
+      async function fillScoresForAllProblems() {
+        // 获取所有题目的元素
+        const problemElements = $('.item[data-id]');
+
+        // 使用 map 函数将所有的 fetchProblemData 请求转换为 promise 数组
+        const problemPromises = Array.from(problemElements).map(element => {
+          const problemId = $(element).data('id').toString();
+          return fetchProblemData(problemId).then(score => ({ element, score }));
+        });
+
+        // 使用 Promise.all 并行处理所有请求
+        Promise.all(problemPromises).then(results => {
+          results.forEach(({ element, score }) => {
+            if (score) {
+              $(element).find('input[type="number"]').val(score);
+            }
+          });
+        });
+
+      }
 
   </script>
   <% } %>
