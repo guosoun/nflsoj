@@ -9,5 +9,12 @@
         "rootDir": "./models",
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true
-    }
+    },
+    "include": [
+        "models/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "uploads"
+    ]
 }

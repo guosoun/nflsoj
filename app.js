@@ -100,6 +100,7 @@ global.syzoj = {
 
     let Express = require('express');
     global.app = Express();
+    app.use('/videos', Express.static(__dirname + '/uploads/videos'));
 
     if (!this.checkMigratedToTypeORM()) return;
 

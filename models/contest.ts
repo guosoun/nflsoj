@@ -79,6 +79,9 @@ export default class Contest extends Model {
   @TypeORM.Column({ default: true })
   allow_test_code: boolean;
 
+  @TypeORM.Column({ type: 'varchar', nullable: true })
+  videoUrl: string;
+
   holder?: User;
   ranklist?: ContestRanklist;
   player?: ContestPlayer;
