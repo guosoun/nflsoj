@@ -14,6 +14,7 @@
             <tr>
                 <% if (local_is_admin || !contest.hide_username) { %><th>用户名</th><% } %>
                 <% if (local_is_admin || key) { %><th>nick</th><% } %>
+                <th>总数</th>
                 <% for (let i = 0; i < problems.length; i++) { %>
                   <th>
                     <a href="<%= syzoj.utils.makeUrl(['contest', contest.id, 'problem', i + 1]) %>">
@@ -21,7 +22,6 @@
                     </a>
                   </th>
                 <% } %>
-                <th>数量</th>
             </tr>
             </thead>
             <tbody>
@@ -30,10 +30,15 @@
                   <% if (local_is_admin || !contest.hide_username) { %><td><a href="<%= syzoj.utils.makeUrl(['user', item.user.id]) %>"><%= item.user.username %></a><% if (item.user.nameplate) { %><%- item.user.nameplate %><% } %></td><% } %>
                   <% if (local_is_admin || key) { %><td><%= item.user.nickname %></td><% } %>
                   <% let count = 0;%>
+                  <% for (let problem of item.problems) {
+                    if (problem.buti_judge && problem.buti_judge.status === 'Accepted') 
+                      count++;
+                  }
+                  %>
+                  <td> <%= count %> </td>
                   <% for (let problem of item.problems) { %>
                     <td>
                         <% if (problem.buti_judge) { %>
-                          <% if (problem.buti_judge.status === 'Accepted') count += 1; %>
                           <a href="javascript:;" onclick="__showCode(event, '<%= syzoj.utils.makeUrl(['submission', problem.buti_judge.id]) %>', '<%= item.user.username %>')">
                             <span class="status <%= problem.buti_judge.status.toLowerCase().split(' ').join('_') %>">
                               <i class="<%= icon[problem.buti_judge.status] || 'remove' %> icon"></i>
@@ -42,7 +47,6 @@
                         <% } %>
                     </td>
                   <% } %>
-                  <td> <%= count %> </td>
               </tr>
             <% } %>
             </tbody>
