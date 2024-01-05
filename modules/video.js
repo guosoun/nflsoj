@@ -40,7 +40,7 @@ app.post('/video/upload', app.multer.single('video'), async (req, res) => {
 
     const timestamp = syzoj.utils.getCurrentDate();
     const tempPath = req.file.path;
-    const targetPath = path.join('uploads/videos', `${timestamp}`);
+    const targetPath = path.join('uploads/videos', `${res.locals.user.username}_${timestamp}`);
     const outputPath = `${targetPath}/index.m3u8`;
 
     const videoSize = req.file.size;
