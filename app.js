@@ -353,17 +353,18 @@ global.syzoj = {
     app.use((req, res, next) => {
       res.locals.req = req;
       res.locals.res = res;
-      if (user === undefined) next();
-      res.locals.user.getPrivileges()
-      .then(privileges => {
-        res.locals.user.privileges = privileges;
-        next();
-      })
-      .catch(err => {
-        res.locals.user.privileges = [];
-        console.log(err);
-        next();
-      });
+      if (!res.locals.user) next();
+      else {
+        res.locals.user.getPrivileges()
+        .then(privileges => {
+          res.locals.user.privileges = privileges;
+          next();
+        })
+        .catch(err => {
+          console.log(err);
+          next();
+        });
+      }
     });
   }
 };
