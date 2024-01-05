@@ -1,0 +1,101 @@
+<% this.title = '视频'%>
+<% include header %>
+<style>
+  .ui.popup {
+    max-width: 250px; /* 或你希望的任何最大宽度 */
+  }
+
+</style>
+<div id="video-tab-menu" class="ui secondary menu">
+  <a class="item active" data-tab="second">视频列表</a>
+  <a class="item " data-tab="first">上传视频</a>
+</div>
+<div class="ui tab basic segment " data-tab="first">
+<form class="ui form" action="/video/upload" method="post" enctype="multipart/form-data">
+  <div class="fields">
+    <div class="fourteen wide field">
+      <div class="required field">
+        <label>视频标题</label>
+        <input type="text" name="title" placeholder="输入视频标题">
+      </div>
+    </div>
+    <div class="two wide field">
+      <div class="field">
+        <label>题目 ID</label>
+        <input type="text" name="problem_id">
+      </div>
+    </div>
+  </div>
+  <div class="field">
+    <label>视频描述</label>
+    <textarea name="description" placeholder="输入视频描述"></textarea>
+  </div>
+  <div class="required field">
+    <label>选择视频文件</label>
+    <input type="file" name="video" class="ui button">
+  </div>
+  <div style="text-align: center; ">
+    <button class="ui blue labeled icon button" id="submitBtn"><i class="ui upload icon"></i>上传</button>
+  </div>
+</form>
+</div>
+<div class="ui tab basic segment active" data-tab="second">
+  <% if (!videos.length) {%>
+    <div class="padding">
+      <div class="ui placeholder segment">
+        <div class="ui icon header">
+          <i class="video icon" style="margin-bottom: 20px; "></i>
+          暂无视频
+        </div>
+      </div>
+    <br>
+  </div>
+  <%}%>
+  <div class="ui four cards" style="padding-bottom: 20px">
+    <% videos.forEach(video => { %>
+      <div class="card">
+        <div class="content">
+          <a href-post="/video/delete/<%= video.id %>">
+            <i class="right floated trash red icon"></i>
+          </a>
+          <div class="header"><%= video.title %></div>
+          <div class="description" data-content="<%= video.description %>" data-variation="wide" style="height: 100%;">
+            <%= video.description.length > 100 ? video.description.substring(0, 100) + '...' : video.description %>
+          </div>
+        </div>
+        <div class="extra content">
+          <div class="ui grid">
+            <div class="thirteen wide column">
+              <i class="calendar alternate outline icon"></i>
+              <span class="date"><%= syzoj.utils.formatDate(video.created_time) %></span>
+              <br>
+              <i class="file alternate outline icon"></i>
+              <%= (video.size / 1024 / 1024).toFixed(2) %> MB
+            </div>
+            <div class="three wide right aligned column">
+              <a href="<%= syzoj.utils.makeUrl(['video', video.access_url]) %>">
+                <i class="play icon"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+  <% include page %>
+</div>
+
+<script>
+$(function () {
+  $('#video-tab-menu .item').tab();
+  $('.description').popup();
+  $('.ui.form').form({
+    fields: {
+      title: 'empty',
+      video: 'empty'
+    }
+  });
+
+});
+</script>
+<% include footer %>

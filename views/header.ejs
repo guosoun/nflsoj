@@ -10,6 +10,7 @@
     <link href="<%- selfLib('syntect-tomorrow.css') %>?20220512" rel="stylesheet">
     <link href="<%- selfLib('style.css') %>?20181212" rel="stylesheet">
     <link href="<%- lib('morris.js/0.5.1/morris.css') %>" rel="stylesheet">
+    <link href="<%- lib('video.js/video-js.css') %>" rel="stylesheet">
 <% if (useLocalLibs || !syzoj.config.google_fonts || !['like-google-fonts', 'like-local', 'built-in'].includes(syzoj.config.google_fonts.type)) { %>
       <link href="<%- syzoj.utils.makeUrl(['google-fonts', 'fira-mono.css']) %>" rel="stylesheet">
       <link href="<%- syzoj.utils.makeUrl(['google-fonts', 'lato.css']) %>" rel="stylesheet">
@@ -31,9 +32,9 @@
       <link href="<%- this.builtInCdnUrl %>/google-fonts/open-sans.css" rel="stylesheet">
       <link href="<%- this.builtInCdnUrl %>/google-fonts/exo-2.css" rel="stylesheet">
     <% } %>
-    <script data-cfasync="false" src="<%- lib('video.js/video-js.css') %>"></script>
+
+    
     <script data-cfasync="false" src="<%- lib('video.js/video.js') %>"></script>
-    <script data-cfasync="false" src="<%- lib('video.js/videojs-contrib-hls.min.js') %>"></script>
     <script data-cfasync="false" src="<%- lib('jquery/3.3.1/jquery.min.js') %>"></script>
     <script data-cfasync="false" src="<%- lib('jquery-ui/jquery-ui.js') %>"></script>
     <script>
@@ -92,6 +93,7 @@
                 <%= user.username %><% if (user.nameplate) { %><%- user.nameplate %><% } %> <i class="dropdown icon"></i>
                 <div class="menu">
                   <a class="item" href="<%= syzoj.utils.makeUrl(['user', user.id, 'edit']) %>"><i class="edit icon"></i>修改资料</a>
+                  <% if (res.locals.user.privileges.includes(syzoj.PrivilegeType.AddVideo))  { %> <a class="item" href="<%= syzoj.utils.makeUrl(['videos']) %>"><i class="video icon"></i>上传视频</a><% } %>
                   <% if (user.is_admin) { %>
                     <a class="item" href="<%= syzoj.utils.makeUrl(['admin', 'info']) %>"><i class="settings icon"></i>后台管理</a>
                     <div class="ui basic modal" id="modal-restart">

@@ -59,7 +59,8 @@ global.syzoj = {
     ManageProblem: 'manage_problem',
     ManageProblemTag: 'manage_problem_tag',
     ManageUser: 'manage_user',
-    AddProblem: 'add_problem'
+    AddProblem: 'add_problem',
+    AddVideo: 'add_video',
   },
   vjBasics,
   vjs: vjBasics.VjBasic,
@@ -100,7 +101,7 @@ global.syzoj = {
 
     let Express = require('express');
     global.app = Express();
-    app.use('/videos', Express.static(__dirname + '/uploads/videos'));
+    app.use('/streams', Express.static(__dirname + '/uploads/videos'));
 
     if (!this.checkMigratedToTypeORM()) return;
 
@@ -352,7 +353,16 @@ global.syzoj = {
     app.use((req, res, next) => {
       res.locals.req = req;
       res.locals.res = res;
-      next();
+      res.locals.user.getPrivileges()
+      .then(privileges => {
+        res.locals.user.privileges = privileges;
+        next();
+      })
+      .catch(err => {
+        res.locals.user.privileges = [];
+        console.log(err);
+        next();
+      });
     });
   }
 };

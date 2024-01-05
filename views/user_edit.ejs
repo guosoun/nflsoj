@@ -130,9 +130,13 @@
           <input <% if (!allowedManagePrivilege) { %>disabled="disabled" <% } %>type="checkbox"<% if (edited_user.privileges.includes(syzoj.PrivilegeType.ManageProblemTag)) { %> checked<% } %>>
           <label>管理题目标签</label>
         </div>
-        <div class="ui toggle <% if (!allowedManagePrivilege) { %>disabled <% } %>checkbox checkbox_privilege" data-name="<%= syzoj.PrivilegeType.ManageUser%>">
+        <div class="ui toggle <% if (!allowedManagePrivilege) { %>disabled <% } %>checkbox checkbox_privilege" data-name="<%= syzoj.PrivilegeType.ManageUser%>" style="margin-right: 20px; ">
           <input <% if (!allowedManagePrivilege) { %>disabled="disabled" <% } %>type="checkbox"<% if (edited_user.privileges.includes(syzoj.PrivilegeType.ManageUser)) { %> checked<% } %>>
           <label>管理用户</label>
+        </div>
+        <div class="ui toggle <% if (!allowedManagePrivilege) { %>disabled <% } %>checkbox checkbox_privilege" data-name="<%= syzoj.PrivilegeType.AddVideo%>">
+          <input <% if (!allowedManagePrivilege) { %>disabled="disabled" <% } %>type="checkbox"<% if (edited_user.privileges.includes(syzoj.PrivilegeType.AddVideo)) { %> checked<% } %>>
+          <label>上传视频</label>
         </div>
       </div>
       <div style="text-align: center; margin-top: 30px; ">

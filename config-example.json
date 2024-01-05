@@ -67,7 +67,8 @@
     "edit_contest_problem_list": 10,
     "practice": 10,
     "edit_practice_problem_list": 10,
-    "edit_problem_tag_list": 10
+    "edit_problem_tag_list": 10,
+    "video": 12
   },
   "enabled_languages": [
     "cpp",

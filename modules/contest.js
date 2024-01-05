@@ -1869,37 +1869,3 @@ app.post('/contest/:id/note/update',  async (req, res) => {
     res.send({error: e})
   }
 });
-
-app.post('/contest/:id/video/upload', app.multer.single('video'), async (req, res) => {
-  try {
-
-    if(!res.locals.user || !await res.locals.user.hasPrivilege(syzoj.PrivilegeType.ManageUser)) throw new ErrorMessage('您没有权限进行此操作。');
-
-    const id = parseInt(req.params.id);
-    const contest = await Contest.findOne(id);
-    if (!contest) throw new ErrorMessage('无此比赛。');
-    
-
-    const timestamp = Date.now();
-    const tempPath = req.file.path;
-    const targetPath = path.join('uploads/videos', `contest${id}_${timestamp}`);
-    const outputPath = `${targetPath}/index.m3u8`;
-
-    await fs.move(tempPath, `${targetPath}.mp4`);
-    await fs.ensureDir(targetPath);
-    
-    await execAsync(`ffmpeg -i ${targetPath}.mp4 -codec: copy -start_number 0 -hls_time 10 -hls_list_size 0 -f hls ${outputPath}`);
-    await fs.remove(`${targetPath}.mp4`);
-
-    const videoUrl = `/videos/${path.basename(targetPath)}/index.m3u8`;
-    contest.videoUrl = videoUrl;
-    await contest.save();
-
-    res.redirect(syzoj.utils.makeUrl(['contest', id]));
-  } catch (e) {
-    syzoj.log(e);
-    res.render('error', {
-      err: e
-    });
-  }
-});
