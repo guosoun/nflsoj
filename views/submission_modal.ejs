@@ -224,6 +224,11 @@
         <p v-if="title" class="transition visible">
            <strong v-html="title"></strong>
         </p>
+        <% if (user.is_admin) { %>
+        <a :href="download" v-if="download" download>
+          <i class="download icon"></i>
+        </a>
+       <% } %>
         <div class="ui existing segment">
           <slot></slot>
           <pre v-if="!noEscape" style="margin-top: 0; margin-bottom: 0; "><code>{{ content }}</code></pre>
