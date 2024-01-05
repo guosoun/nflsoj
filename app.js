@@ -353,7 +353,7 @@ global.syzoj = {
     app.use((req, res, next) => {
       res.locals.req = req;
       res.locals.res = res;
-      if (!user) next();
+      if (user === undefined) next();
       res.locals.user.getPrivileges()
       .then(privileges => {
         res.locals.user.privileges = privileges;
