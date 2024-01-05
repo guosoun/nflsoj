@@ -10,16 +10,7 @@ const RatingCalculation = syzoj.model('rating_calculation');
 const RatingHistory = syzoj.model('rating_history');
 let PracticePlayer = syzoj.model('practice_player');
 let ProblemForbid = syzoj.model("problem_forbid")
-let Video = syzoj.model("video")
-
-const { v4: uuidv4 } = require('uuid');
 const calcRating = require('../libs/rating');
-
-let { exec } = require('child_process')
-const { promisify } = require('util');
-const execAsync = promisify(exec);
-const path = require('path');
-const fs = require('fs-extra');
 
 app.get('/admin/info', async (req, res) => {
   try {
