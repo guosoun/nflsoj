@@ -148,11 +148,13 @@
         let pie_data = {}
         for(let item of info) {
             if(item.submit_time < l || item.submit_time > r) continue
+            let countedTypes = new Set();
             for(let tag of item.tags) {
                 let type = mpBig[tag.name]
-                if(!type) continue
+                if(!type || countedTypes.has(type)) continue
                 if(!counter[type]) counter[type] = 0;
-                counter[type] += 1
+                counter[type] += 1;
+                countedTypes.add(type);
                 if(type === radio.value) {
                     if(!pie_data[tag.name]) pie_data[tag.name] = 0
                     pie_data[tag.name] += 1
