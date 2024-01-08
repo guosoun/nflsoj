@@ -155,7 +155,13 @@ app.get('/cp/user/:id', async (req, res) => {
       contests = contests.filter(c => c.title.includes(req.query.title))
     }
 
-    let count = contests.length
+    let problem_count = await JudgeState.createQueryBuilder()
+    .select(`DISTINCT(problem_id)`)
+    .where('user_id = :user_id', { user_id: user.id })
+    .andWhere('status = :status', { status: 'Accepted' })
+    .orderBy({ problem_id: 'ASC' }).getRawMany();
+
+    let count = {contest_count: contests.length, problem_count: problem_count.length}
     let paginate = syzoj.utils.paginate(count, req.query.page, syzoj.config.page.contest)
 
     let start = (paginate.currPage - 1) * paginate.perPage
