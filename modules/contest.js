@@ -162,7 +162,7 @@ app.get('/cp/user/:id', async (req, res) => {
     .orderBy({ problem_id: 'ASC' }).getRawMany();
 
     let count = {contest_count: contests.length, problem_count: problem_count.length}
-    let paginate = syzoj.utils.paginate(count, req.query.page, syzoj.config.page.contest)
+    let paginate = syzoj.utils.paginate(count.contest_count, req.query.page, syzoj.config.page.contest)
 
     let start = (paginate.currPage - 1) * paginate.perPage
     contests = contests.slice(start,  start + paginate.perPage)

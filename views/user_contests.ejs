@@ -15,7 +15,7 @@
         <i class="search icon"></i><input placeholder="比赛标题" type="text" id="search_input">
         <button class="ui mini button" onclick="searchContest()">查找比赛</button>
     </div>
-    <div  style="font-size: 18px;margin-top: 20px; display: flex; justify-content: space-between" >
+    <div  style="font-size: 18px;margin-top: 20px; display: flex; justify-content: space-between;" >
         <div> contest history of <a id="page_url" href="/cp/user/<%= show_user.id %>?key=<%= key %>"> <%= show_user.username + ' - ' + show_user.nickname%> </a> </div>
         <div>
             <div class="ui mini horizontal statistic">
@@ -29,7 +29,7 @@
             <div class="value">
                 <%=count.problem_count%>
             </div>
-            <div class="label">总过题数</div>
+            <div class="label">总题数</div>
             </div>
             <% } %>
         </div>
