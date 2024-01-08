@@ -15,25 +15,22 @@
         <i class="search icon"></i><input placeholder="比赛标题" type="text" id="search_input">
         <button class="ui mini button" onclick="searchContest()">查找比赛</button>
     </div>
-    <div  style="font-size: 18px;margin-top: 20px; display: flex; justify-content: space-between;" >
-        <div> contest history of <a id="page_url" href="/cp/user/<%= show_user.id %>?key=<%= key %>"> <%= show_user.username + ' - ' + show_user.nickname%> </a> </div>
-        <div>
-            <div class="ui mini horizontal statistic">
-                <div class="value">
-                  <%=count.contest_count%>
-                </div>
-                <div class="label">总比赛数</div>
-              </div>
+    <h3 style="display: flex;justify-content: space-between;">
+        <div> 
+            <a id="page_url" href="/cp/user/<%= show_user.id %>?key=<%= key %>">
+                <%= show_user.username + ' - ' + show_user.nickname %>
+            </a> 
+        </div>
+        <div style="flex-grow: 1;"></div> <!-- 新增的占位符 -->
+        <div> 
             <% if (res.locals.user.is_admin) { %>
-            <div class="ui mini horizontal statistic">
-            <div class="value">
-                <%=count.problem_count%>
-            </div>
-            <div class="label">总题数</div>
-            </div>
+            <%='总题数：'+count.problem_count%>
             <% } %>
         </div>
-    </div>
+        <div style="padding-left: 20px;"> 
+            <%='总记录：'+count.contest_count%>
+        </div>
+    </h3>    
 
     <div style="margin-top: 20px"></div>
     <table class="ui center aligned table celled">
