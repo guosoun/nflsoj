@@ -23,7 +23,7 @@
         </div>
         <div style="flex-grow: 1;"></div> <!-- 新增的占位符 -->
         <div> 
-            <% if (res.locals.user.is_admin) { %>
+            <% if (res.locals.user && res.locals.user.is_admin) { %>
             <%='总题数：'+count.problem_count%>
             <% } %>
         </div>
