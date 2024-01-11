@@ -10,7 +10,7 @@
     <link href="<%- selfLib('syntect-tomorrow.css') %>?20220512" rel="stylesheet">
     <link href="<%- selfLib('style.css') %>?20181212" rel="stylesheet">
     <link href="<%- lib('morris.js/0.5.1/morris.css') %>" rel="stylesheet">
-    <link href="<%- lib('video.js/video-js.css') %>" rel="stylesheet">
+    <link rel="stylesheet" href="<%- lib('plyr/plyr.css') %>" />
 <% if (useLocalLibs || !syzoj.config.google_fonts || !['like-google-fonts', 'like-local', 'built-in'].includes(syzoj.config.google_fonts.type)) { %>
       <link href="<%- syzoj.utils.makeUrl(['google-fonts', 'fira-mono.css']) %>" rel="stylesheet">
       <link href="<%- syzoj.utils.makeUrl(['google-fonts', 'lato.css']) %>" rel="stylesheet">
@@ -34,9 +34,11 @@
     <% } %>
 
     
-    <script data-cfasync="false" src="<%- lib('video.js/video.js') %>"></script>
     <script data-cfasync="false" src="<%- lib('jquery/3.3.1/jquery.min.js') %>"></script>
     <script data-cfasync="false" src="<%- lib('jquery-ui/jquery-ui.js') %>"></script>
+    <script data-cfasync="false" src="<%- lib('plyr/plyr.polyfilled.js') %>"></script>
+    <script data-cfasync="false" src="<%- lib('hls.js/hls.min.js') %>"></script>
+
     <script>
       function copyToClip(content) {
         var textarea = document.createElement('textarea');
