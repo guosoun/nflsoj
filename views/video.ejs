@@ -4,12 +4,16 @@
 <body>
     <h1><%= video.title %><%= video.problem_id ? ' - Problem ' + video.problem_id : '' %></h1>
     <p><%= video.description %></p>
-    <video controls crossorigin style=" height: 75vh;"></video>
+    <div style="max-width: 100%; margin-left: auto; margin-right: auto;">
+        <video controls crossorigin></video>
+    </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const source = '<%= video.url %>';
             const video = document.querySelector('video');
-            const player = new Plyr(video);
+            const player = new Plyr(video, {
+                keyboard: { focused: true, global: true }
+            });
             if (!Hls.isSupported()) {
                 video.src = source;
             } else {

@@ -101,7 +101,6 @@ global.syzoj = {
 
     let Express = require('express');
     global.app = Express();
-    app.use('/streams', Express.static(__dirname + '/uploads/videos'));
 
     if (!this.checkMigratedToTypeORM()) return;
 
@@ -367,6 +366,10 @@ global.syzoj = {
         });
       }
     });
+    app.use('/streams', async (req, res, next) => {
+      if(!res.locals.user) res.status(403).send('Access denied');
+      else next();
+    }, require('express').static(__dirname + '/uploads/videos'));
   }
 };
 
