@@ -10,18 +10,32 @@ html(lang="zh")
     h1, h2 {
       font-family: 'Simhei'
     }
+    table {
+      width: 100%;     /* 表格宽度占满容器 */
+      border-collapse: collapse; /* 边框折叠为单一边框 */
+    }
+
+    table, th, td {
+      border: 1px solid black; /* 设置边框粗细为3px，颜色为黑色 */
+    }
+
+    th, td {
+      text-align: center; /* 单元格内容居中对齐 */
+      padding: 3px; /* 单元格内部填充 */
+    }
+
   body
     div(style='page-break-after: always;')
       h1(style='text-align: center;')= contest_title
-      table(class="ui basic table" style='margin: 0 auto;')
+      table(style='margin: 0 auto;')
         thead 
           tr
-            th(class='three wide') 题目名称
+            th(style='width: 20%;') 题目名称
             each problem in problems
               th= problem.title
         tbody
           tr
-            td(class='three wide') 题目类型
+            td(style='width: 20%;') 题目类型
             script.
               cons
               function translateProblemType(type) {
@@ -37,48 +51,48 @@ html(lang="zh")
             each problem in problems
               td= problem.type
           tr 
-            td(class='three wide') 目录
+            td(style='width: 20%;') 目录
             each problem in problems
               td
                 code= problem.english_title
           tr 
-            td(class='three wide') 可执行文件名
+            td(style='width: 20%;') 可执行文件名
             each problem in problems
               td
                 code= problem.english_title
           tr
-            td(class='three wide') 输入文件名
+            td(style='width: 20%;') 输入文件名
             each problem in problems
               td
                 code= problem.english_title + '.in'
           tr
-            td(class='three wide') 输出文件名
+            td(style='width: 20%;') 输出文件名
             each problem in problems
               td
                 code= problem.english_title + '.out'
           tr
-            td(class='three wide') 每个测试点时限
+            td(style='width: 20%;') 每个测试点时限
             each problem in problems
               td
                 code= problem.time_limit + ' ms'
           tr 
-            td(class='three wide') 内存限制
+            td(style='width: 20%;') 内存限制
             each problem in problems
               td
                 code= problem.memory_limit + ' MB'
       h3 提交源程序文件名
-      table(class="ui basic table" style='margin: 0 auto;')
+      table(style='margin: 0 auto;')
         tbody
           tr
-            td(class='three wide') 对于 C++ 语言 
+            td(style='width: 20%;') 对于 C++ 语言 
             each problem in problems
                 td
                   code= problem.english_title + '.cpp'
       h3 编译选项
-      table(class="ui basic table" style='margin: 0 auto;')
+      table(style='margin: 0 auto;')
         tbody
           tr
-            td(class='three wide')  对于 C++ 语言 
+            td(style='width: 20%;')  对于 C++ 语言 
             td(class='class="center aligned') 
               code -O2 -std=c++14 -static
     each problem in problems
