@@ -305,45 +305,27 @@ app.get('/problem/pdf/:ids', async (req, res) => {
   try {
     if(!res.locals.user){throw new ErrorMessage('请登录后继续。',{'登录': syzoj.utils.makeUrl(['login'])});}
     if(!res.locals.user || !res.locals.user.is_admin) throw new ErrorMessage('您没有权限进行此操作。');
+    if (!req.query.t) throw new ErrorMessage('请指定比赛标题。');
     const ids = req.params.ids.split(',').map(id => parseInt(id.trim(), 10));
-    let combinedContent = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <title>Problems</title>
-        <link href="/cdnjs/semantic-ui/2.4.1/semantic.min.css" rel="stylesheet">
-      </head>
-      <body>
-    `;
-    let index = 0;
-
-    for (const id of ids) {
-      const problem = await Problem.findById(id);
-      if (!problem) {
-        continue; // Skip non-existing problems
+    const problemsPromises = ids.map(id => Problem.findById(id));
+    let problems = await Promise.all(problemsPromises);
+    problems = problems.filter(problem => problem !== null && problem !== undefined);
+    for (let problem of problems) {
+      function translateProblemType(type) {
+        const typeMap = {
+          'traditional': '传统',
+          'submit-answer': '提交答案',
+          'interaction': '交互',
+          'remote': '远程'
+        };
+        return typeMap[type] || type;
       }
-
-      // Generate HTML content as before
+      if (!problem.file_io) throw new ErrorMessage(`无法获得题目 #${problem.id} 的英文名，请检查文件 IO。`);
+      problem.type = translateProblemType(problem.type);
+      problem.english_title = problem.file_io_input_name?.split('.')[0];
       await syzoj.utils.markdown(problem, ['description', 'input_format', 'output_format', 'example', 'limit_and_hint']);
-      alpha = number => {
-        if (number && parseInt(number) == number && parseInt(number) > 0) return String.fromCharCode('A'.charCodeAt(0) + parseInt(number) - 1);
-      };
-      let htmlContent = `
-        <div style="break-after: page;">
-          <h1>${alpha(index + 1)}. ${syzoj.utils.removeTitleTag(problem.title)}</h1>
-          <strong>时间限制:</strong> ${problem.time_limit} ms<br>
-          <strong>内存限制:</strong> ${problem.memory_limit} MIB<br>
-          ${problem.description ? '<h2>题目描述</h2>' + problem.description : ''}
-          ${problem.input_format ? '<h2>输入格式</h2>' + problem.input_format : ''}
-          ${problem.output_format ? '<h2>输出格式</h2>' + problem.output_format : ''}
-          ${problem.example ? '<h2>样例</h2>' + problem.example : ''}
-          ${problem.limit_and_hint ? '<h2>数据范围与提示</h2>' + problem.limit_and_hint : ''}
-        </div>
-      `;
-      combinedContent += htmlContent;
-      index++;
     }
-    res.send(combinedContent);
+    res.render('problem_pdf.pug', {problems, contest_title: req.query.t})
   } catch (e) {
     syzoj.log(e);
     res.render('error', {

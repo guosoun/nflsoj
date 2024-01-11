@@ -116,6 +116,7 @@ global.syzoj = {
 
     // Set template engine ejs
     app.set('view engine', 'ejs');
+    app.engine('pug', require('pug').__express);
 
     // Use body parser
     let bodyParser = require('body-parser');

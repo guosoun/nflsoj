@@ -1,0 +1,101 @@
+doctype html
+html(lang="zh")
+  head
+    title= contest_title
+    link(rel='stylesheet', href='/cdnjs/semantic-ui/2.4.1/semantic.min.css')
+  style.
+    body {
+      font-family: 'SimSun'
+    }
+    h1, h2 {
+      font-family: 'Simhei'
+    }
+  body
+    div(style='page-break-after: always;')
+      h1(style='text-align: center;')= contest_title
+      table(class="ui basic table" style='margin: 0 auto;')
+        thead 
+          tr
+            th(class='three wide') 题目名称
+            each problem in problems
+              th= problem.title
+        tbody
+          tr
+            td(class='three wide') 题目类型
+            script.
+              cons
+              function translateProblemType(type) {
+                const typeMap = {
+                  'traditional': '传统',
+                  'submit-answer': '提交答案',
+                  'interaction': '交互',
+                  'remote': '远程'
+                };
+                return typeMap[type] || type;
+              }
+
+            each problem in problems
+              td= problem.type
+          tr 
+            td(class='three wide') 目录
+            each problem in problems
+              td
+                code= problem.english_title
+          tr 
+            td(class='three wide') 可执行文件名
+            each problem in problems
+              td
+                code= problem.english_title
+          tr
+            td(class='three wide') 输入文件名
+            each problem in problems
+              td
+                code= problem.english_title + '.in'
+          tr
+            td(class='three wide') 输出文件名
+            each problem in problems
+              td
+                code= problem.english_title + '.out'
+          tr
+            td(class='three wide') 每个测试点时限
+            each problem in problems
+              td
+                code= problem.time_limit + ' ms'
+          tr 
+            td(class='three wide') 内存限制
+            each problem in problems
+              td
+                code= problem.memory_limit + ' MB'
+      h3 提交源程序文件名
+      table(class="ui basic table" style='margin: 0 auto;')
+        tbody
+          tr
+            td(class='three wide') 对于 C++ 语言 
+            each problem in problems
+                td
+                  code= problem.english_title + '.cpp'
+      h3 编译选项
+      table(class="ui basic table" style='margin: 0 auto;')
+        tbody
+          tr
+            td(class='three wide')  对于 C++ 语言 
+            td(class='class="center aligned') 
+              code -O2 -std=c++14 -static
+    each problem in problems
+      h1(style='text-align: center;')= `${problem.title}（${problem.english_title}）`
+      div(style='page-break-after: always;')
+        if problem.description 
+          h2 【题目描述】
+          p!= problem.description
+        if problem.input_format 
+          h2 【输入格式】
+          p!= problem.input_format
+        if problem.output_format 
+          h2 【输出格式】
+          p!= problem.output_format
+        if problem.example 
+          h2 【样例】
+          p!= problem.example
+        if problem.limit_and_hint 
+          h2 【数据范围】
+          p!= problem.limit_and_hint
