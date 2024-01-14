@@ -70,6 +70,9 @@
               <a href="<%= syzoj.utils.makeUrl(['video', video.access_url]) %>">
                 <i class="play icon"></i>
               </a>
+              <a onclick=<%=`copyToClip("[讲解视频](/video/${video.access_url})")`%> >
+                <i class="copy icon"></i>
+              </a>
             </div>
           </div>
         </div>
