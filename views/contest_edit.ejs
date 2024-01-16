@@ -4,7 +4,6 @@
 <div class="ui top attached tabular menu">
   <a class="item active" data-tab="first">比赛信息</a>
   <% if (contest.id) { %> <a class="item" data-tab="second">题目管理</a> <% } %>
-  <% if (contest.id) { %> <a class="item" data-tab="third">上传视频</a> <% } %>
 </div>
 <div class="ui bottom attached tab segment active" data-tab="first">
   <div class="padding">
@@ -455,16 +454,4 @@
   </script>
   <% } %>
 </div>
-<div class="ui bottom attached tab segment" data-tab="third">
-  <div class="padding">
-    <form class="ui form" action="<%= syzoj.utils.makeUrl(['contest', contest.id, 'video', 'upload']) %>" method="post" enctype="multipart/form-data">
-        <div class="field">
-            <input type="file" name="video" accept="video/*" required>
-        </div>
-        <div style="text-align: center; "><button type="submit" class="ui labeled icon button"><i
-          class="ui upload icon"></i>上传</button></div>
-    </form>
-</div>
-</div>
-
 <% include footer %>
