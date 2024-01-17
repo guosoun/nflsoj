@@ -47,7 +47,7 @@ app.post('/video/upload', app.multer.single('video'), async (req, res) => {
 
     await fs.move(tempPath, `${targetPath}.mp4`);
     await fs.ensureDir(targetPath);
-    await execAsync(`ffmpeg -i ${targetPath}.mp4 -c:v libx264 -c:a aac -start_number 0 -hls_time 10 -hls_list_size 0 -f hls ${outputPath}`);
+    await execAsync(`ffmpeg -i ${targetPath}.mp4 -codec: copy -start_number 0 -hls_time 10 -hls_list_size 0 -f hls ${outputPath}`);
     await fs.remove(`${targetPath}.mp4`);
 
     const video = new Video();
